@@ -1,0 +1,26 @@
+# superpowers scratch workspace
+.superpowers/
+
+# python
+__pycache__/
+*.pyc
+.venv/
+venv/
+*.egg-info/
+
+# env files (never commit secrets)
+.env
+backend/.env
+ml_service/.env
+frontend/.env
+
+# node
+node_modules/
+frontend/dist/
+
+# ml artifacts intermediate data (synthetic csv is regenerable; joblib models are committed deliberately)
+ml_service/data/*.csv
+
+# misc
+*.log
+.DS_Store
