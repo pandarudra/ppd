@@ -22,3 +22,11 @@ export function severityBgClass(severity) {
 export function severityTextClass(severity) {
   return SEVERITY_TEXT[severity] || "text-slate-400";
 }
+
+export const SEVERITY_HEX = {
+  CRITICAL: "#DC2626",
+  HIGH: "#F97316",
+  MEDIUM: "#EAB308",
+  LOW: "#22C55E",
+  INFO: "#3B82F6",
+};

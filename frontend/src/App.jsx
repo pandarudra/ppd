@@ -1,6 +1,12 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useAuthStore } from "./stores/authStore";
 import PageWrapper from "./components/layout/PageWrapper";
+import Login from "./pages/Login";
+import Dashboard from "./pages/Dashboard";
+import Events from "./pages/Events";
+import Alerts from "./pages/Alerts";
+import Incidents from "./pages/Incidents";
+import Assistant from "./pages/Assistant";
 
 function ProtectedRoute({ children }) {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
@@ -8,21 +14,16 @@ function ProtectedRoute({ children }) {
   return <PageWrapper>{children}</PageWrapper>;
 }
 
-// Placeholder until Task 11 adds the real pages/ components.
-function Placeholder({ name }) {
-  return <div className="text-slate-400">{name} page coming in Task 11.</div>;
-}
-
 export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/login" element={<Placeholder name="Login" />} />
+        <Route path="/login" element={<Login />} />
         <Route
           path="/dashboard"
           element={
             <ProtectedRoute>
-              <Placeholder name="Dashboard" />
+              <Dashboard />
             </ProtectedRoute>
           }
         />
@@ -30,7 +31,7 @@ export default function App() {
           path="/events"
           element={
             <ProtectedRoute>
-              <Placeholder name="Events" />
+              <Events />
             </ProtectedRoute>
           }
         />
@@ -38,7 +39,7 @@ export default function App() {
           path="/alerts"
           element={
             <ProtectedRoute>
-              <Placeholder name="Alerts" />
+              <Alerts />
             </ProtectedRoute>
           }
         />
@@ -46,7 +47,7 @@ export default function App() {
           path="/incidents"
           element={
             <ProtectedRoute>
-              <Placeholder name="Incidents" />
+              <Incidents />
             </ProtectedRoute>
           }
         />
@@ -54,7 +55,7 @@ export default function App() {
           path="/assistant"
           element={
             <ProtectedRoute>
-              <Placeholder name="Assistant" />
+              <Assistant />
             </ProtectedRoute>
           }
         />
