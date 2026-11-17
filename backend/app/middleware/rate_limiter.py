@@ -7,21 +7,34 @@ from starlette.responses import JSONResponse
 
 from app.core.security import verify_token
 
-# path -> (limit, window_seconds); unlisted paths fall back to DEFAULT_LIMIT.
-# Values per plan/SECURITY_CONTROLS.md "API Rate Limiting".
+# exact path -> (limit, window_seconds). Values per plan/SECURITY_CONTROLS.md
+# "API Rate Limiting".
 PATH_LIMITS = {
     "/api/v1/auth/login": (10, 60),
     "/api/v1/events/ingest": (1000, 60),
     "/api/v1/events/ingest/batch": (1000, 60),
-    "/api/v1/assistant/analyze": (20, 60),
 }
+# path-prefix -> (limit, window_seconds), for routes with a dynamic segment
+# (e.g. /assistant/explain/{alert_id}) that a plain dict key can't match.
+PATH_PREFIX_LIMITS = [
+    ("/api/v1/assistant/", 20, 60),
+]
 DEFAULT_LIMIT = (200, 60)
+
+
+def _limit_for(path: str) -> tuple[int, int]:
+    if path in PATH_LIMITS:
+        return PATH_LIMITS[path]
+    for prefix, limit, window in PATH_PREFIX_LIMITS:
+        if path.startswith(prefix):
+            return (limit, window)
+    return DEFAULT_LIMIT
 
 
 class RateLimiterMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
         path = request.url.path
-        limit, window = PATH_LIMITS.get(path, DEFAULT_LIMIT)
+        limit, window = _limit_for(path)
 
         key_id = request.client.host if request.client else "unknown"
         auth_header = request.headers.get("authorization", "")

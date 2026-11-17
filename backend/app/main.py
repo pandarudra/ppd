@@ -6,7 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
 from app.core.redis_client import create_redis_client
 from app.middleware.rate_limiter import RateLimiterMiddleware
-from app.routers import alerts, auth, events, incidents, intelligence, users, websocket
+from app.routers import alerts, assistant, auth, events, incidents, intelligence, users, websocket
 
 
 @asynccontextmanager
@@ -33,6 +33,7 @@ app.include_router(events.router)
 app.include_router(alerts.router)
 app.include_router(incidents.router)
 app.include_router(intelligence.router)
+app.include_router(assistant.router)
 app.include_router(websocket.router)
 
 
