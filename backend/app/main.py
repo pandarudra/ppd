@@ -6,7 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
 from app.core.redis_client import create_redis_client
 from app.middleware.rate_limiter import RateLimiterMiddleware
-from app.routers import auth, users
+from app.routers import auth, events, users
 
 
 @asynccontextmanager
@@ -29,6 +29,7 @@ app.add_middleware(RateLimiterMiddleware)
 
 app.include_router(auth.router)
 app.include_router(users.router)
+app.include_router(events.router)
 
 
 @app.get("/health")
