@@ -11,6 +11,7 @@ venv/
 # env files (never commit secrets)
 .env
 backend/.env
+backend/.env.test.local
 ml_service/.env
 frontend/.env
 
