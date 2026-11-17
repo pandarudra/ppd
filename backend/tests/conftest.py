@@ -14,12 +14,13 @@ from app.core.database import Base, get_db
 from app import models  # noqa: F401  (ensures all models are registered on Base.metadata)
 
 
-@pytest.fixture(scope="session", autouse=True)
-def _flush_redis_rate_limits():
-    # The login rate limiter (10/min/IP, plan/SECURITY_CONTROLS.md) persists
-    # counters in the same dev Redis this test suite's TestClient hits, so
-    # back-to-back runs (or ad hoc manual checks) within the same 60s window
-    # bucket can exhaust the limit and fail unrelated tests with a 429.
+@pytest.fixture(autouse=True)
+def _flush_redis_state():
+    # Function-scoped (not session-scoped): the login rate limiter (10/min/IP)
+    # and the 30s dashboard cache both persist in this dev Redis across test
+    # functions and ad hoc manual checks run in the same session, so a shared
+    # TTL window can both 429 unrelated logins and serve a stale cached
+    # dashboard to a test that just inserted new rows.
     client = redis_sync.from_url(settings.REDIS_URL)
     client.flushdb()
     client.close()
