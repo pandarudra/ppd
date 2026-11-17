@@ -3,7 +3,7 @@ from datetime import datetime
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
 from sqlalchemy.orm import Session
 
-from app.background.ml_processor import process_event_stub
+from app.background.ml_processor import process_event
 from app.core.database import get_db
 from app.core.dependencies import get_current_user, require_role
 from app.models import User
@@ -43,7 +43,7 @@ async def ingest_event(
     current_user: User = Depends(require_role("api_client", "analyst", "admin")),
 ):
     event = event_service.save_event(db, payload)
-    background_tasks.add_task(process_event_stub, event.id)
+    background_tasks.add_task(process_event, event.id)
     return IngestAcceptedResponse(event_id=str(event.event_id))
 
 
@@ -57,7 +57,7 @@ async def ingest_batch(
     event_ids = []
     for item in payload.events:
         event = event_service.save_event(db, item)
-        background_tasks.add_task(process_event_stub, event.id)
+        background_tasks.add_task(process_event, event.id)
         event_ids.append(str(event.event_id))
 
     return BatchIngestResponse(
