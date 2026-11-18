@@ -5,12 +5,20 @@ export default function DetailDrawer({ open, onClose, title, children }) {
 
   return (
     <div className="fixed inset-0 z-40 flex justify-end">
-      <div className="absolute inset-0 bg-black/50" onClick={onClose} />
-      <div className="relative w-full max-w-[480px] bg-slate-800 border-l border-slate-600 h-full overflow-y-auto p-5">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold text-slate-100">{title}</h2>
-          <button onClick={onClose} className="text-slate-400 hover:text-slate-200">
-            <X size={20} />
+      <div className="absolute inset-0 bg-black/20" onClick={onClose} />
+      <div
+        role="dialog"
+        aria-label={title}
+        className="relative h-full w-full max-w-[520px] overflow-y-auto border-l border-hairline bg-canvas p-8"
+      >
+        <div className="mb-8 flex items-center justify-between">
+          <h2 className="text-heading-md">{title}</h2>
+          <button
+            onClick={onClose}
+            aria-label="Close"
+            className="flex h-9 w-9 items-center justify-center rounded-full bg-surface-soft text-ink"
+          >
+            <X size={18} />
           </button>
         </div>
         {children}

@@ -2,16 +2,16 @@ import { timeAgo } from "../../utils/formatters";
 
 export default function IncidentTimeline({ timeline }) {
   if (!timeline?.length) {
-    return <div className="text-slate-500 text-sm py-6 text-center">No timeline entries yet</div>;
+    return <p className="py-6 text-body">No timeline entries yet.</p>;
   }
 
   return (
-    <ol className="space-y-4 border-l border-slate-600 pl-4">
+    <ol className="space-y-6 border-l border-hairline pl-5">
       {timeline.map((entry) => (
         <li key={entry.id} className="relative">
-          <span className="absolute -left-[21px] top-1 h-2.5 w-2.5 rounded-full bg-blue-500" />
-          <div className="text-sm text-slate-200">{entry.description}</div>
-          <div className="text-xs text-slate-500 mt-0.5">
+          <span className="absolute -left-[25px] top-1.5 h-2 w-2 rounded-full bg-ink" />
+          <div className="text-body-md text-ink">{entry.description}</div>
+          <div className="mt-1 text-body-sm text-body">
             {entry.user} · {timeAgo(entry.created_at)}
           </div>
         </li>

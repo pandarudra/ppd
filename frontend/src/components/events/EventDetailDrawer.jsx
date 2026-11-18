@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import DetailDrawer from "../common/DetailDrawer";
 import Spinner from "../common/Spinner";
+import TerminalCard from "../common/TerminalCard";
 import * as eventsApi from "../../api/eventsApi";
 
 export default function EventDetailDrawer({ eventId, onClose }) {
@@ -18,41 +19,30 @@ export default function EventDetailDrawer({ eventId, onClose }) {
   });
 
   return (
-    <DetailDrawer open={!!eventId} onClose={onClose} title="Event Detail">
+    <DetailDrawer open={!!eventId} onClose={onClose} title="Event detail">
       {isLoading || !event ? (
         <Spinner />
       ) : (
-        <div className="space-y-4">
-          <div>
-            <div className="text-xs text-slate-500 uppercase mb-1">Raw Log</div>
-            <pre className="bg-slate-900 border border-slate-600 rounded-md p-3 text-xs text-slate-300 overflow-x-auto whitespace-pre-wrap">
-              {event.raw_log}
-            </pre>
-          </div>
-
-          <div>
-            <div className="text-xs text-slate-500 uppercase mb-1">Normalized Data</div>
-            <pre className="bg-slate-900 border border-slate-600 rounded-md p-3 text-xs text-slate-300 overflow-x-auto">
-              {JSON.stringify(event.normalized_data, null, 2)}
-            </pre>
-          </div>
+        <div className="space-y-8">
+          <TerminalCard title="raw log">{event.raw_log}</TerminalCard>
+          <TerminalCard title="normalized">{JSON.stringify(event.normalized_data, null, 2)}</TerminalCard>
 
           {detection && (
-            <div>
-              <div className="text-xs text-slate-500 uppercase mb-1">Detection Scores</div>
-              <div className="space-y-1 text-sm text-slate-300">
+            <section>
+              <h3 className="mb-2 text-heading-sm">Detection scores</h3>
+              <ul className="text-body-sm">
                 {Object.entries(detection.model_scores || {}).map(([model, score]) => (
-                  <div key={model} className="flex justify-between">
+                  <li key={model} className="flex justify-between border-b border-hairline py-2 text-charcoal">
                     <span className="capitalize">{model.replaceAll("_", " ")}</span>
-                    <span>{(score * 100).toFixed(0)}%</span>
-                  </div>
+                    <span className="font-mono text-ink">{(score * 100).toFixed(0)}%</span>
+                  </li>
                 ))}
-                <div className="flex justify-between font-semibold pt-1 border-t border-slate-700">
-                  <span>Risk Level</span>
+                <li className="flex justify-between py-2 font-medium text-ink">
+                  <span>Risk level</span>
                   <span>{detection.risk_level}</span>
-                </div>
-              </div>
-            </div>
+                </li>
+              </ul>
+            </section>
           )}
         </div>
       )}

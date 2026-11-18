@@ -1,15 +1,15 @@
 export default function DataTable({ columns, rows, onRowClick, emptyMessage = "No data" }) {
   if (!rows?.length) {
-    return <div className="text-slate-500 text-sm py-8 text-center">{emptyMessage}</div>;
+    return <p className="py-12 text-center text-body">{emptyMessage}</p>;
   }
 
   return (
-    <div className="overflow-x-auto border border-slate-600 rounded-lg">
-      <table className="w-full text-sm">
-        <thead className="bg-slate-800 text-slate-400 text-xs uppercase">
+    <div className="card overflow-x-auto">
+      <table className="w-full text-body-sm">
+        <thead>
           <tr>
             {columns.map((col) => (
-              <th key={col.key} className="px-3 py-2 text-left font-medium">
+              <th key={col.key} className="whitespace-nowrap px-4 py-3 text-left font-medium text-body">
                 {col.label}
               </th>
             ))}
@@ -20,10 +20,10 @@ export default function DataTable({ columns, rows, onRowClick, emptyMessage = "N
             <tr
               key={row.id ?? idx}
               onClick={() => onRowClick?.(row)}
-              className={`border-t border-slate-700 ${onRowClick ? "cursor-pointer hover:bg-slate-800" : ""}`}
+              className={`border-t border-hairline ${onRowClick ? "cursor-pointer hover:bg-surface-soft" : ""}`}
             >
               {columns.map((col) => (
-                <td key={col.key} className="px-3 py-2 text-slate-200">
+                <td key={col.key} className="whitespace-nowrap px-4 py-3 text-ink">
                   {col.render ? col.render(row) : row[col.key]}
                 </td>
               ))}

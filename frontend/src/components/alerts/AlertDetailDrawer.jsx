@@ -51,31 +51,33 @@ export default function AlertDetailDrawer({ alertId, onClose }) {
   });
 
   return (
-    <DetailDrawer open={!!alertId} onClose={onClose} title="Alert Detail">
+    <DetailDrawer open={!!alertId} onClose={onClose} title="Alert detail">
       {isLoading || !alert ? (
         <Spinner />
       ) : (
-        <div className="space-y-5">
+        <div className="space-y-8">
           <div>
-            <div className="flex items-center gap-2 mb-1">
+            <div className="mb-3 flex items-center gap-2">
               <SeverityBadge severity={alert.severity} />
               <StatusBadge status={alert.status} />
             </div>
-            <h3 className="text-base font-semibold text-slate-100">{alert.title}</h3>
-            <p className="text-sm text-slate-400 whitespace-pre-wrap mt-1">{alert.description}</p>
+            <h3 className="text-heading-md">{alert.title}</h3>
+            <p className="mt-2 whitespace-pre-wrap text-body-md text-body">{alert.description}</p>
+            {alert.event && (
+              <div className="mt-4 flex flex-wrap gap-2">
+                <span className="command-tag">src {alert.event.source_ip || "—"}</span>
+                <span className="command-tag">port {alert.event.dest_port ?? "—"}</span>
+              </div>
+            )}
           </div>
 
-          {alert.event && (
-            <div className="text-xs text-slate-400 space-y-1">
-              <div>Source IP: {alert.event.source_ip || "—"}</div>
-              <div>Dest port: {alert.event.dest_port ?? "—"}</div>
-            </div>
-          )}
-
           <div>
-            <label className="text-xs text-slate-400 uppercase block mb-1">Status</label>
+            <label htmlFor="alert-status" className="label">
+              Status
+            </label>
             <select
-              className="w-full bg-slate-900 border border-slate-600 rounded-md px-2 py-1.5 text-sm text-slate-100"
+              id="alert-status"
+              className="text-input capitalize"
               value={alert.status}
               onChange={(e) => statusMutation.mutate(e.target.value)}
             >
@@ -87,40 +89,43 @@ export default function AlertDetailDrawer({ alertId, onClose }) {
             </select>
           </div>
 
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             <Button variant="secondary" onClick={() => explainMutation.mutate()} disabled={explainMutation.isPending}>
-              {explainMutation.isPending ? "Thinking..." : "Get AI Explanation"}
+              {explainMutation.isPending ? "Thinking…" : "Explain with AI"}
             </Button>
             <Button
               variant="secondary"
               onClick={() => linkIncidentMutation.mutate()}
               disabled={linkIncidentMutation.isPending || linkIncidentMutation.isSuccess}
             >
-              {linkIncidentMutation.isSuccess ? "Linked to Incident" : "Link to Incident"}
+              {linkIncidentMutation.isSuccess ? "Linked to incident" : "Open incident"}
             </Button>
           </div>
 
           {explanation && (
-            <div className="bg-slate-900 border border-slate-600 rounded-md p-3 text-sm text-slate-300 whitespace-pre-wrap">
-              <div className="text-xs text-slate-500 uppercase mb-1">AI Explanation</div>
-              {explanation.explanation}
-            </div>
+            <section>
+              <h3 className="mb-2 text-heading-sm">AI explanation</h3>
+              <p className="whitespace-pre-wrap text-body-md text-body">{explanation.explanation}</p>
+            </section>
           )}
 
           <div>
-            <label className="text-xs text-slate-400 uppercase block mb-1">Add Comment</label>
+            <label htmlFor="alert-comment" className="label">
+              Add comment
+            </label>
             <textarea
-              className="w-full bg-slate-900 border border-slate-600 rounded-md px-2 py-1.5 text-sm text-slate-100"
-              rows={2}
+              id="alert-comment"
+              className="w-full rounded-lg border border-hairline bg-canvas px-4 py-3 text-body-md text-ink focus:border-ink"
+              rows={3}
               value={comment}
               onChange={(e) => setComment(e.target.value)}
             />
             <Button
-              className="mt-2"
+              className="mt-3"
               onClick={() => commentMutation.mutate()}
               disabled={!comment.trim() || commentMutation.isPending}
             >
-              Submit Comment
+              Submit comment
             </Button>
           </div>
         </div>

@@ -1,7 +1,9 @@
 export default function Spinner({ className = "" }) {
   return (
     <div
-      className={`animate-spin h-5 w-5 rounded-full border-2 border-slate-600 border-t-blue-400 ${className}`}
+      role="status"
+      aria-label="Loading"
+      className={`h-5 w-5 animate-spin rounded-full border-2 border-hairline border-t-ink ${className}`}
     />
   );
 }

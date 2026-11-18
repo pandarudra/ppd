@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { SeverityBadge, StatusBadge } from "../components/common/Badge";
 import IncidentWorkspace from "../components/incidents/IncidentWorkspace";
 import Spinner from "../components/common/Spinner";
+import PageHeader from "../components/layout/PageHeader";
 import * as incidentsApi from "../api/incidentsApi";
 
 export default function Incidents() {
@@ -14,35 +15,41 @@ export default function Incidents() {
   });
 
   return (
-    <div className="flex gap-6 h-full">
-      <aside className="w-72 shrink-0 space-y-2">
-        <h1 className="text-lg font-bold text-slate-100 mb-2">Incidents</h1>
-        {isLoading && <Spinner />}
-        {data?.incidents.map((incident) => (
-          <button
-            key={incident.incident_id}
-            onClick={() => setSelectedIncidentId(incident.incident_id)}
-            className={`w-full text-left p-3 rounded-md border ${
-              selectedIncidentId === incident.incident_id
-                ? "border-blue-500 bg-slate-800"
-                : "border-slate-700 bg-slate-800/50 hover:bg-slate-800"
-            }`}
-          >
-            <div className="flex items-center gap-2 mb-1">
-              <SeverityBadge severity={incident.severity} />
-              <StatusBadge status={incident.status} />
-            </div>
-            <div className="text-sm text-slate-200 truncate">{incident.title}</div>
-            <div className="text-xs text-slate-500">{incident.alert_count} linked alert(s)</div>
-          </button>
-        ))}
-        {data && data.incidents.length === 0 && (
-          <div className="text-slate-500 text-sm">No incidents yet.</div>
-        )}
-      </aside>
+    <div className="space-y-8">
+      <PageHeader title="Incidents">Grouped alerts under active investigation.</PageHeader>
 
-      <div className="flex-1 bg-slate-800 border border-slate-600 rounded-lg p-5">
-        <IncidentWorkspace incidentId={selectedIncidentId} />
+      <div className="flex flex-col gap-8 lg:flex-row">
+        <aside className="lg:w-72 lg:shrink-0">
+          {isLoading && <Spinner />}
+          <ul className="border-t border-hairline">
+            {data?.incidents.map((incident) => {
+              const active = selectedIncidentId === incident.incident_id;
+              return (
+                <li key={incident.incident_id}>
+                  <button
+                    onClick={() => setSelectedIncidentId(incident.incident_id)}
+                    aria-current={active}
+                    className={`w-full border-b border-hairline py-4 text-left ${active ? "" : "opacity-70"}`}
+                  >
+                    <div className="mb-2 flex items-center gap-2">
+                      <SeverityBadge severity={incident.severity} />
+                      <StatusBadge status={incident.status} />
+                    </div>
+                    <div className={`truncate text-body-md ${active ? "font-medium text-ink" : "text-charcoal"}`}>
+                      {incident.title}
+                    </div>
+                    <div className="mt-1 text-body-sm text-body">{incident.alert_count} linked alert(s)</div>
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+          {data && data.incidents.length === 0 && <p className="py-4 text-body">No incidents yet.</p>}
+        </aside>
+
+        <div className="card min-w-0 flex-1 p-6 md:p-8">
+          <IncidentWorkspace incidentId={selectedIncidentId} />
+        </div>
       </div>
     </div>
   );

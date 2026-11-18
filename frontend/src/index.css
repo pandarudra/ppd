@@ -1,3 +1,54 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-canvas text-ink font-sans text-body-md antialiased;
+  }
+  h1, h2, h3 {
+    @apply font-display;
+  }
+  /* The only blue in the system: browser-default style focus ring. */
+  :focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5);
+  }
+}
+
+@layer components {
+  .section-gap {
+    @apply space-y-12 md:space-y-16 lg:space-y-section;
+  }
+  .text-input {
+    @apply h-10 w-full rounded-full border border-hairline bg-canvas px-4 text-body-md text-ink placeholder:text-mute focus:border-ink;
+  }
+  .text-input-sm {
+    @apply h-9 rounded-full border border-hairline bg-canvas px-4 text-body-sm text-ink placeholder:text-mute focus:border-ink;
+  }
+  .search-pill {
+    @apply h-9 rounded-full bg-surface-soft px-4 text-body-sm text-ink placeholder:text-mute focus:bg-canvas;
+  }
+  .command-tag {
+    @apply inline-flex items-center rounded-full bg-surface-soft px-3 py-1.5 font-mono text-body-sm text-ink;
+  }
+  .card {
+    @apply rounded-lg border border-hairline bg-canvas;
+  }
+  .label {
+    @apply mb-1 block text-body-sm font-medium text-charcoal;
+  }
+  .link-mute {
+    @apply text-body underline;
+  }
+}
+
+@layer components {
+  select.text-input,
+  select.text-input-sm,
+  select.search-pill {
+    @apply appearance-none bg-no-repeat pr-10;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' stroke='%23737373' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m4 6 4 4 4-4'/%3E%3C/svg%3E");
+    background-position: right 14px center;
+  }
+}

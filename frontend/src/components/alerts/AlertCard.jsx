@@ -1,24 +1,21 @@
 import { SeverityBadge } from "../common/Badge";
 import { timeAgo } from "../../utils/formatters";
-import { severityBgClass } from "../../utils/severityColors";
 
+// Rendered as a hairline-divided row (faq-row pattern) inside a list.
 export default function AlertCard({ alert, onClick }) {
   return (
     <button
       onClick={() => onClick?.(alert)}
-      className="w-full flex items-stretch gap-3 bg-slate-800 border border-slate-600 rounded-md overflow-hidden text-left hover:border-slate-500 transition-colors"
+      className="flex w-full items-center justify-between gap-4 border-b border-hairline py-4 text-left"
     >
-      <div className={`w-1.5 shrink-0 ${severityBgClass(alert.severity)}`} />
-      <div className="flex-1 py-2 pr-3 min-w-0">
-        <div className="flex items-center justify-between gap-2">
-          <span className="text-sm text-slate-100 truncate">{alert.title}</span>
-          <SeverityBadge severity={alert.severity} />
-        </div>
-        <div className="flex items-center gap-2 text-xs text-slate-400 mt-0.5">
-          {alert.source_ip && <span>{alert.source_ip}</span>}
+      <div className="min-w-0">
+        <div className="truncate text-body-md font-medium text-ink">{alert.title}</div>
+        <div className="mt-1 flex items-center gap-3 text-body-sm text-body">
+          {alert.source_ip && <span className="font-mono">{alert.source_ip}</span>}
           <span>{timeAgo(alert.created_at)}</span>
         </div>
       </div>
+      <SeverityBadge severity={alert.severity} />
     </button>
   );
 }

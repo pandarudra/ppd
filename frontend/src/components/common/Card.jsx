@@ -1,6 +1,8 @@
-export default function Card({ children, className = "" }) {
+export default function Card({ children, className = "", dark = false }) {
   return (
-    <div className={`bg-slate-800 border border-slate-600 rounded-lg p-4 ${className}`}>
+    <div
+      className={`rounded-lg p-8 ${dark ? "bg-surface-dark text-on-dark" : "border border-hairline bg-canvas"} ${className}`}
+    >
       {children}
     </div>
   );
