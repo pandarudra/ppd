@@ -20,7 +20,7 @@ node_modules/
 frontend/dist/
 
 # ml artifacts intermediate data (synthetic csv is regenerable; joblib models are committed deliberately)
-ml_service/data/*.csv
+ml_service/data/
 
 # misc
 *.log

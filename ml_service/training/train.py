@@ -4,6 +4,7 @@ Trains the three models in plan/AI_ML_DESIGN.md's MVP stack (Isolation Forest,
 Random Forest, XGBoost) on the synthetic dataset, evaluates on a held-out test
 split, and saves artifacts + a metrics.json companion file.
 """
+import argparse
 import json
 import sys
 from datetime import datetime, timezone
@@ -23,7 +24,7 @@ from sklearn.metrics import (
 )
 from sklearn.utils.class_weight import compute_sample_weight
 
-from training.data_prep import load_and_split
+from training.data_prep import DATA_PATH, load_and_split
 
 MODEL_DIR = Path(__file__).resolve().parents[1] / "models"
 
@@ -42,11 +43,14 @@ def evaluate(name: str, y_true, y_pred, y_score) -> dict:
 
 
 def main():
-    data = load_and_split()
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--data", type=Path, default=DATA_PATH, help="training CSV (default: synthetic_events.csv)")
+    args = ap.parse_args()
+    data = load_and_split(args.data)
     X_train, y_train = data["X_train"], data["y_train"]
     X_test, y_test = data["X_test"], data["y_test"]
 
-    isolation_forest = IsolationForest(n_estimators=200, contamination=0.1, random_state=42, n_jobs=-1)
+    isolation_forest = IsolationForest(n_estimators=200, contamination=float(min(max(data["y_train"].mean(), 0.01), 0.5)), random_state=42, n_jobs=-1)
     isolation_forest.fit(X_train)
     if_score = -isolation_forest.decision_function(X_test)  # higher = more anomalous
     if_pred = (isolation_forest.predict(X_test) == -1).astype(int)
@@ -76,9 +80,9 @@ def main():
 
     trained_at = datetime.now(timezone.utc).isoformat()
     metrics = {
-        "isolation_forest": {**if_metrics, "algorithm": "IsolationForest", "trained_at": trained_at},
-        "random_forest": {**rf_metrics, "algorithm": "RandomForest", "trained_at": trained_at},
-        "xgboost": {**xgb_metrics, "algorithm": "XGBoost", "trained_at": trained_at},
+        "isolation_forest": {**if_metrics, "algorithm": "IsolationForest", "dataset": args.data.name, "trained_at": trained_at},
+        "random_forest": {**rf_metrics, "algorithm": "RandomForest", "dataset": args.data.name, "trained_at": trained_at},
+        "xgboost": {**xgb_metrics, "algorithm": "XGBoost", "dataset": args.data.name, "trained_at": trained_at},
     }
     (MODEL_DIR / "metrics.json").write_text(json.dumps(metrics, indent=2))
     print(f"\nSaved artifacts and metrics.json to {MODEL_DIR}")
