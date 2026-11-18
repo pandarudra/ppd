@@ -1,29 +1,32 @@
 {
   "isolation_forest": {
-    "accuracy": 0.9973333333333333,
-    "precision": 0.974025974025974,
-    "recall": 1.0,
-    "f1_score": 0.9868421052631579,
-    "auc_roc": 0.9998814814814815,
+    "accuracy": 0.549985935302391,
+    "precision": 0.549608938547486,
+    "recall": 0.5535051198379656,
+    "f1_score": 0.5515501485675842,
+    "auc_roc": 0.5249528166780896,
     "algorithm": "IsolationForest",
-    "trained_at": "2026-11-18T19:04:32.135578+00:00"
+    "dataset": "prepared_balanced.csv",
+    "trained_at": "2026-11-18T20:33:27.004564+00:00"
   },
   "random_forest": {
-    "accuracy": 1.0,
-    "precision": 1.0,
-    "recall": 1.0,
-    "f1_score": 1.0,
-    "auc_roc": 1.0,
+    "accuracy": 0.9934739803094234,
+    "precision": 0.9933625829677128,
+    "recall": 0.993586137054124,
+    "f1_score": 0.9934743474347435,
+    "auc_roc": 0.9996091477888647,
     "algorithm": "RandomForest",
-    "trained_at": "2026-11-18T19:04:32.135578+00:00"
+    "dataset": "prepared_balanced.csv",
+    "trained_at": "2026-11-18T20:33:27.004564+00:00"
   },
   "xgboost": {
-    "accuracy": 1.0,
-    "precision": 1.0,
-    "recall": 1.0,
-    "f1_score": 1.0,
-    "auc_roc": 1.0,
+    "accuracy": 0.9923488045007033,
+    "precision": 0.9914635516118162,
+    "recall": 0.9932485653201305,
+    "f1_score": 0.9923552557616638,
+    "auc_roc": 0.9994611879608125,
     "algorithm": "XGBoost",
-    "trained_at": "2026-11-18T19:04:32.135578+00:00"
+    "dataset": "prepared_balanced.csv",
+    "trained_at": "2026-11-18T20:33:27.004564+00:00"
   }
 }

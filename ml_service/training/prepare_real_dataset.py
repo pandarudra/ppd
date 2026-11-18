@@ -4,6 +4,7 @@ Run from ml_service/:
     python training/prepare_real_dataset.py unsw   data/raw/UNSW_NB15_training-set.csv data/raw/UNSW_NB15_testing-set.csv
     python training/prepare_real_dataset.py cicids data/raw/cicids/            # dir of *.csv or file paths
     python training/prepare_real_dataset.py cicids data/raw/cicids/ --sample 300000
+    python training/prepare_real_dataset.py cicids data/raw/cicids/ --balance 100000  # 100k benign + 100k attack
 
 Writes data/prepared.csv, then: python training/train.py --data data/prepared.csv
 
@@ -11,6 +12,10 @@ Features a dataset cannot supply fall back to the live extractor's benign
 DEFAULTS (pipeline/feature_extractor.py), so they are constant in training and
 the models ignore them. Mappings marked "approx" are the closest flow
 statistic, not an exact equivalent.
+
+--balance N  Under-samples the majority class so each class has exactly N rows
+             (or the natural minority-class count if fewer than N rows exist).
+             Removes class-imbalance bias. Mutually exclusive with --sample.
 """
 import argparse
 import sys
@@ -89,8 +94,14 @@ def main():
     ap.add_argument("dataset", choices=MAPPERS)
     ap.add_argument("paths", nargs="+", help="CSV files or directories")
     ap.add_argument("--sample", type=int, help="randomly keep at most N rows (CICIDS2017 is ~2.8M)")
+    ap.add_argument("--balance", type=int, metavar="N",
+                    help="balance classes: sample N rows per class (benign + attack). "
+                         "Removes majority-class bias. Mutually exclusive with --sample.")
     ap.add_argument("--out", type=Path, default=OUTPUT_PATH)
     args = ap.parse_args()
+
+    if args.sample and args.balance:
+        sys.exit("--sample and --balance are mutually exclusive")
 
     # latin1: CICIDS2017 csvs contain non-UTF8 bytes
     frames = [MAPPERS[args.dataset](pd.read_csv(f, encoding="latin1", low_memory=False)) for f in _csv_files(args.paths)]
@@ -103,6 +114,18 @@ def main():
 
     if args.sample and len(df) > args.sample:
         df = df.sample(args.sample, random_state=42)
+
+    if args.balance:
+        benign  = df[df["label"] == 0]
+        attacks = df[df["label"] == 1]
+        n = min(args.balance, len(benign), len(attacks))
+        if n < args.balance:
+            print(f"[balance] minority class has only {min(len(benign), len(attacks))} rows; "
+                  f"capping at {n} per class instead of {args.balance}")
+        benign_s  = benign.sample(n,  random_state=42)
+        attacks_s = attacks.sample(n, random_state=42)
+        df = pd.concat([benign_s, attacks_s]).sample(frac=1, random_state=42).reset_index(drop=True)
+        print(f"[balance] {n} benign + {n} attack = {len(df)} rows (50.0% attack)")
 
     args.out.parent.mkdir(parents=True, exist_ok=True)
     df.to_csv(args.out, index=False)

@@ -1,0 +1,29 @@
+{
+  "isolation_forest": {
+    "accuracy": 0.9973333333333333,
+    "precision": 0.974025974025974,
+    "recall": 1.0,
+    "f1_score": 0.9868421052631579,
+    "auc_roc": 0.9998814814814815,
+    "algorithm": "IsolationForest",
+    "trained_at": "2026-11-18T19:04:32.135578+00:00"
+  },
+  "random_forest": {
+    "accuracy": 1.0,
+    "precision": 1.0,
+    "recall": 1.0,
+    "f1_score": 1.0,
+    "auc_roc": 1.0,
+    "algorithm": "RandomForest",
+    "trained_at": "2026-11-18T19:04:32.135578+00:00"
+  },
+  "xgboost": {
+    "accuracy": 1.0,
+    "precision": 1.0,
+    "recall": 1.0,
+    "f1_score": 1.0,
+    "auc_roc": 1.0,
+    "algorithm": "XGBoost",
+    "trained_at": "2026-11-18T19:04:32.135578+00:00"
+  }
+}
