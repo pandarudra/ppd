@@ -1,8 +1,11 @@
+import logging
 import re
 
 import httpx
 
 from app.core.config import settings
+
+logger = logging.getLogger(__name__)
 
 MAX_QUESTION_LENGTH = 2000
 
@@ -28,10 +31,14 @@ def filter_output(text: str) -> str:
     return filtered
 
 
-def _offline_response() -> str:
+def _offline_response(reason: str | None = None) -> str:
+    why = (
+        f"The {settings.LLM_PROVIDER} call failed ({reason}); check the model name and key."
+        if reason
+        else "No LLM API key is configured for this deployment (set LLM_PROVIDER + NVIDIA_API_KEY or GEMINI_API_KEY)."
+    )
     return (
-        "[OFFLINE MODE] No LLM API key is configured for this deployment "
-        "(set LLM_PROVIDER + NVIDIA_API_KEY or GEMINI_API_KEY). Structure shown below is a placeholder:\n\n"
+        f"[OFFLINE MODE] {why} Structure shown below is a placeholder:\n\n"
         "1. Threat Assessment: Unable to analyze without a configured LLM provider.\n"
         "2. Evidence Summary: Review the raw context fields returned alongside this response.\n"
         "3. Investigation Steps: Manually review the event, alert, and detection data.\n"
@@ -55,12 +62,13 @@ async def _call_nvidia(prompt: str) -> str:
 
 
 async def _call_gemini(prompt: str) -> str:
-    url = (
-        f"https://generativelanguage.googleapis.com/v1beta/models/"
-        f"{settings.GEMINI_MODEL}:generateContent?key={settings.GEMINI_API_KEY}"
-    )
-    async with httpx.AsyncClient(timeout=30.0) as client:
-        response = await client.post(url, json={"contents": [{"parts": [{"text": prompt}]}]})
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/{settings.GEMINI_MODEL}:generateContent"
+    async with httpx.AsyncClient(timeout=60.0) as client:
+        response = await client.post(
+            url,
+            headers={"x-goog-api-key": settings.GEMINI_API_KEY},  # header, not ?key=, so it stays out of URLs/logs
+            json={"contents": [{"parts": [{"text": prompt}]}]},
+        )
         response.raise_for_status()
         return response.json()["candidates"][0]["content"]["parts"][0]["text"]
 
@@ -75,5 +83,7 @@ async def complete(prompt: str) -> str:
         if settings.LLM_PROVIDER == "gemini" and settings.GEMINI_API_KEY:
             return await _call_gemini(prompt)
         return _offline_response()
-    except (httpx.HTTPError, KeyError, IndexError):
-        return _offline_response()
+    except (httpx.HTTPError, KeyError, IndexError, TypeError) as exc:
+        status = getattr(getattr(exc, "response", None), "status_code", None)
+        logger.warning("LLM call failed: %s", type(exc).__name__, exc_info=True)
+        return _offline_response(f"HTTP {status}" if status else type(exc).__name__)

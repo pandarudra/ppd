@@ -8,7 +8,7 @@
 
 **Tech Stack:** Python 3.11 + FastAPI + SQLAlchemy + Alembic + Pydantic + python-jose + passlib[bcrypt] + redis-py (backend); Python 3.11 + FastAPI + scikit-learn + xgboost + joblib (ml_service); React 18 + Vite + Tailwind CSS + Zustand + TanStack Query + Axios + Recharts (frontend); PostgreSQL 16 + Redis 7; Docker Compose.
 
-**Spec:** `plan/README.md` (index), `plan/ARCHITECTURE.md`, `plan/DATABASE_SCHEMA.md`, `plan/API_SPECIFICATION.md`, `plan/AI_ML_DESIGN.md`, `plan/SECURITY_CONTROLS.md`, `plan/UI_UX_DESIGN.md`, `plan/TECH_STACK.md`, `plan/ROADMAP.md` — executors read the relevant spec section for each task; this plan does not repeat DDL/endpoint payloads that are already written out verbatim in those files.
+**Spec:** `plan/README.md` (index), `plan/ARCHITECTURE.md`, `plan/DATABASE_SCHEMA.md`, `plan/API_SPECIFICATION.md`, `plan/AI_ML_DESIGN.md`, `plan/SECURITY_CONTROLS.md`, `plan/DESIGN.md`, `plan/TECH_STACK.md`, `plan/ROADMAP.md` — executors read the relevant spec section for each task; this plan does not repeat DDL/endpoint payloads that are already written out verbatim in those files.
 
 ## Global Constraints
 
@@ -114,7 +114,7 @@ Expected: PASS.
 - [ ] **Step 3: Implement `security.py`** — JWT creation/verification per `plan/SECURITY_CONTROLS.md` (HS256, 15min/7day expiry, `jti` claim), bcrypt hash/verify (cost 12).
 - [ ] **Step 4: Implement `redis_client.py`** — async Redis connection pool from `settings.REDIS_URL`.
 - [ ] **Step 5: Implement `dependencies.py`** — `get_current_user` (decodes JWT, checks Redis blacklist for `jti`, loads user from DB, 401 on any failure), `require_role(*roles)` (403 if `current_user.role not in roles`).
-- [ ] **Step 6: Implement `auth_service.py` + `routers/auth.py`** — login (bcrypt verify, increment `failed_attempts`/lock after 5 per `plan/UI_UX_DESIGN.md` Page 1, issue tokens, store refresh `jti` in Redis), logout (blacklist current `jti`), refresh (rotate refresh token), me, change-password.
+- [ ] **Step 6: Implement `auth_service.py` + `routers/auth.py`** — login (bcrypt verify, increment `failed_attempts`/lock after 5 per `plan/DESIGN.md` Page 1, issue tokens, store refresh `jti` in Redis), logout (blacklist current `jti`), refresh (rotate refresh token), me, change-password.
 - [ ] **Step 7: Implement `routers/users.py`** — list/create/get/update, all behind `Depends(require_role("admin"))` except `GET /users/{id}` which also allows the user fetching their own profile.
 - [ ] **Step 8: Implement `middleware/rate_limiter.py`** — Redis sliding-window per `plan/SECURITY_CONTROLS.md` (`login: 10/min/IP`, `general API: 200/min/user`), applied as FastAPI middleware.
 - [ ] **Step 9: Register routers in `main.py`** under `/api/v1` prefix.
@@ -314,7 +314,7 @@ Expected: all PASS.
 - Produces: `useWebSocket()` hook per the sketch in `plan/ARCHITECTURE.md` §5.2, dispatching `new_alert`/`alert_updated`/`incident_created`/`system_health_update` into the stores above.
 - Produces: `<App />` with React Router v6 routes `/login` (public) and `/dashboard`, `/events`, `/alerts`, `/incidents`, `/assistant` (protected — redirect to `/login` if `!isAuthenticated`).
 
-- [ ] **Step 1: Scaffold Vite project** (`npm create vite@latest frontend -- --template react`), install `tailwindcss`, `zustand`, `@tanstack/react-query`, `axios`, `react-router-dom`, `recharts`, `lucide-react`; configure Tailwind with the dark palette tokens from `plan/UI_UX_DESIGN.md` §9.1.
+- [ ] **Step 1: Scaffold Vite project** (`npm create vite@latest frontend -- --template react`), install `tailwindcss`, `zustand`, `@tanstack/react-query`, `axios`, `react-router-dom`, `recharts`, `lucide-react`; configure Tailwind with the dark palette tokens from `plan/DESIGN.md` §9.1.
 - [ ] **Step 2: Implement stores** (`authStore.js` etc.) — plain Zustand `create()` stores per the API above.
 - [ ] **Step 3: Implement `api/client.js`** and per-domain API files wrapping the backend endpoints from Tasks 3/4/6/7/8 (one function per endpoint, matching exact paths/payloads from `plan/API_SPECIFICATION.md`).
 - [ ] **Step 4: Implement `hooks/useWebSocket.js`** per the architecture sketch, auto-reconnect with exponential backoff on close.
@@ -335,7 +335,7 @@ Expected: builds with no errors (pages referenced by routes are placeholders unt
 - Consumes: everything from Task 10 (stores, api, hooks, layout).
 - Produces: working pages wired to TanStack Query against the live backend API.
 
-- [ ] **Step 1: Build `Login.jsx`** per `plan/UI_UX_DESIGN.md` Page 1 (email/password form, loading state, error toast, redirect to `/dashboard` on success).
+- [ ] **Step 1: Build `Login.jsx`** per `plan/DESIGN.md` Page 1 (email/password form, loading state, error toast, redirect to `/dashboard` on success).
 - [ ] **Step 2: Build `Dashboard.jsx`** per Page 2 — KPI MetricCards from `GET /analytics/dashboard`, `AlertSeverityChart` (Recharts BarChart), live alert feed (last 20 from `alertStore`, prepended via WebSocket), system health pills from `wsStore`.
 - [ ] **Step 3: Build `Events.jsx`** per Page 3 — filter bar + `DataTable` + `EventDetailDrawer` (raw log, normalized JSON, detection scores) on row click.
 - [ ] **Step 4: Build `Alerts.jsx`** per Page 5 — filter sidebar + alert queue table + `AlertDetailDrawer` (status actions, assignment, comment, "Get AI Explanation" button calling `assistantApi.explainAlert`, "Link to Incident").

@@ -15,3 +15,4 @@ export const ALERT_STATUSES = [
 ];
 
 export const SEVERITIES = ["CRITICAL", "HIGH", "MEDIUM", "LOW", "INFO"];
+

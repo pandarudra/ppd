@@ -45,6 +45,8 @@ class LinkedAlertSummary(BaseModel):
     alert_id: str
     title: str
     severity: str
+    source_ip: str | None = None
+    dest_ip: str | None = None
 
 
 class IncidentDetail(BaseModel):

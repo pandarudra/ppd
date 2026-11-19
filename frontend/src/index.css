@@ -1,54 +1,54 @@
+@import "@fontsource-variable/inter/wght.css";
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
+  html { color-scheme: dark; }
   body {
-    @apply bg-canvas text-ink font-sans text-body-md antialiased;
+    @apply bg-canvas font-sans text-body-md text-ink antialiased;
   }
-  h1, h2, h3 {
-    @apply font-display;
-  }
-  /* The only blue in the system: browser-default style focus ring. */
+  h1, h2, h3 { @apply font-extrabold tracking-tight; }
   :focus-visible {
     outline: none;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5);
+    box-shadow: 0 0 0 3px rgba(0, 117, 255, 0.55);
+  }
+  ::selection { background: rgba(0, 117, 255, 0.4); }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; }
   }
 }
 
 @layer components {
-  .section-gap {
-    @apply space-y-12 md:space-y-16 lg:space-y-section;
-  }
+  .section-gap { @apply space-y-8 md:space-y-10; }
   .text-input {
-    @apply h-10 w-full rounded-full border border-hairline bg-canvas px-4 text-body-md text-ink placeholder:text-mute focus:border-ink;
+    @apply h-10 w-full rounded-md border border-hairline bg-surface px-3 text-body-md text-ink placeholder:text-mute focus:border-secondary;
   }
   .text-input-sm {
-    @apply h-9 rounded-full border border-hairline bg-canvas px-4 text-body-sm text-ink placeholder:text-mute focus:border-ink;
+    @apply h-9 rounded-md border border-hairline bg-surface px-3 text-body-sm text-ink placeholder:text-mute focus:border-secondary;
   }
   .search-pill {
-    @apply h-9 rounded-full bg-surface-soft px-4 text-body-sm text-ink placeholder:text-mute focus:bg-canvas;
+    @apply h-9 rounded-md border border-hairline bg-surface px-3 text-body-sm text-ink placeholder:text-mute focus:border-secondary;
   }
-  .command-tag {
-    @apply inline-flex items-center rounded-full bg-surface-soft px-3 py-1.5 font-mono text-body-sm text-ink;
-  }
-  .card {
-    @apply rounded-lg border border-hairline bg-canvas;
-  }
-  .label {
-    @apply mb-1 block text-body-sm font-medium text-charcoal;
-  }
-  .link-mute {
-    @apply text-body underline;
-  }
+  .command-tag { @apply inline-flex items-center rounded-md bg-surface px-3 py-1.5 font-mono text-body-sm text-ink; }
+  .card { @apply rounded-card border border-hairline bg-surface; }
+  .panel { @apply rounded-card border border-hairline bg-panel; }
+  .label { @apply mb-1 block text-body-sm text-charcoal; }
+  .link-mute { @apply text-body underline; }
+  .eyebrow { @apply font-mono text-caption-sm uppercase tracking-[0.14em] text-mute; }
+  .tabular { font-variant-numeric: tabular-nums; }
 }
 
 @layer components {
-  select.text-input,
-  select.text-input-sm,
-  select.search-pill {
-    @apply appearance-none bg-no-repeat pr-10;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' stroke='%23737373' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m4 6 4 4 4-4'/%3E%3C/svg%3E");
-    background-position: right 14px center;
+  select.text-input, select.text-input-sm, select.search-pill {
+    @apply appearance-none bg-no-repeat pr-9;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' stroke='%239aa1b1' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m4 6 4 4 4-4'/%3E%3C/svg%3E");
+    background-position: right 10px center;
   }
+  select option { background: #2e3035; color: #f0f2f5; }
 }
+
+/* world map */
+.map-land { fill: #1f2024; stroke: #2d2f33; stroke-width: 0.5; }
+.arc { fill: none; stroke-width: 1.2; stroke-linecap: round; stroke-dasharray: 5 7; animation: dash 1.6s linear infinite; }
+@keyframes dash { to { stroke-dashoffset: -24; } }

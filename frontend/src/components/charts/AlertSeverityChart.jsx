@@ -1,7 +1,7 @@
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from "recharts";
 import { SEVERITY_HEX } from "../../utils/severityColors";
 
-const AXIS = { stroke: "#a3a3a3", fontSize: 12, tickLine: false, axisLine: false };
+const AXIS = { stroke: "#6b7181", fontSize: 12, tickLine: false, axisLine: false };
 
 export default function AlertSeverityChart({ data }) {
   const chartData = Object.entries(data || {}).map(([severity, count]) => ({
@@ -20,12 +20,12 @@ export default function AlertSeverityChart({ data }) {
         <XAxis dataKey="severity" {...AXIS} />
         <YAxis {...AXIS} allowDecimals={false} width={32} />
         <Tooltip
-          cursor={{ fill: "#fafafa" }}
-          contentStyle={{ background: "#fff", border: "1px solid #e5e5e5", borderRadius: 12, color: "#000", fontSize: 14 }}
+          cursor={{ fill: "rgba(255,255,255,0.04)" }}
+          contentStyle={{ background: "#1b1c1f", border: "1px solid #2d2f33", borderRadius: 12, color: "#f0f2f5", fontSize: 14 }}
         />
         <Bar dataKey="count" radius={[6, 6, 0, 0]} isAnimationActive={false} maxBarSize={56}>
           {chartData.map((entry) => (
-            <Cell key={entry.key} fill={SEVERITY_HEX[entry.key] || "#d4d4d4"} />
+            <Cell key={entry.key} fill={SEVERITY_HEX[entry.key] || "#6b7181"} />
           ))}
         </Bar>
       </BarChart>

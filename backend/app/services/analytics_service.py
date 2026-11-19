@@ -113,3 +113,117 @@ def get_trends(db: Session, period: str, metric: str) -> dict:
         "trend": trend,
         "change_percent": change_percent,
     }
+
+
+# ---- attack views ---------------------------------------------------------------
+
+SEVERITY_RANK = {"INFO": 0, "LOW": 1, "MEDIUM": 2, "HIGH": 3, "CRITICAL": 4}
+# Kill-chain order; first keyword hit wins. Matched against alert title + event_type.
+STAGES = [
+    ("recon", ("scan", "probe", "recon", "sweep", "enumerat")),
+    ("brute_force", ("brute", "login_failed", "login failed", "password", "auth")),
+    ("access", ("success", "privilege", "shell", "exploit", "injection", "access")),
+    ("exfiltration", ("exfil", "transfer", "upload", "leak")),
+]
+STAGE_ORDER = [s for s, _ in STAGES]
+
+
+def _stage(text: str) -> str:
+    text = (text or "").lower()
+    return next((name for name, words in STAGES if any(w in text for w in words)), "other")
+
+
+def _alert_rows(db: Session, hours: int):
+    since = datetime.now(timezone.utc) - timedelta(hours=hours)
+    return (
+        db.query(
+            SecurityEvent.source_ip, SecurityEvent.dest_ip, SecurityEvent.dest_port,
+            SecurityEvent.protocol, SecurityEvent.event_type, Alert.title, Alert.severity,
+            Alert.created_at,
+        )
+        .join(Alert, Alert.event_id == SecurityEvent.id)
+        .filter(Alert.created_at >= since, SecurityEvent.source_ip.isnot(None))
+        .all()
+    )
+
+
+def _worst(a: str, b: str) -> str:
+    return a if SEVERITY_RANK.get(a, 0) >= SEVERITY_RANK.get(b, 0) else b
+
+
+def get_top_sources(db: Session, hours: int, limit: int = 10) -> list[dict]:
+    from app.services.geo import locate
+
+    agg: dict[str, dict] = {}
+    for src, _dst, _port, _proto, _et, _title, sev, ts in _alert_rows(db, hours):
+        a = agg.setdefault(str(src), {"ip": str(src), "alert_count": 0, "severity": "INFO", "last_seen": ts})
+        a["alert_count"] += 1
+        a["severity"] = _worst(a["severity"], sev)
+        a["last_seen"] = max(a["last_seen"], ts)
+    rows = sorted(agg.values(), key=lambda r: r["alert_count"], reverse=True)[:limit]
+    for r in rows:
+        r["geo"] = locate(r["ip"])
+    return rows
+
+
+def get_top_targets(db: Session, hours: int, limit: int = 10) -> list[dict]:
+    agg: dict[str, dict] = {}
+    for src, dst, port, _proto, _et, _title, sev, _ts in _alert_rows(db, hours):
+        if not dst:
+            continue
+        a = agg.setdefault(str(dst), {"ip": str(dst), "alert_count": 0, "severity": "INFO", "ports": {}, "sources": set()})
+        a["alert_count"] += 1
+        a["severity"] = _worst(a["severity"], sev)
+        a["sources"].add(str(src))
+        if port:
+            a["ports"][port] = a["ports"].get(port, 0) + 1
+    rows = sorted(agg.values(), key=lambda r: r["alert_count"], reverse=True)[:limit]
+    return [
+        {**r, "sources": len(r["sources"]), "ports": sorted(r["ports"], key=r["ports"].get, reverse=True)[:5]}
+        for r in rows
+    ]
+
+
+def get_attack_paths(db: Session, hours: int, limit: int = 40) -> dict:
+    """src -> dst:port edges plus per-attacker kill-chain stages."""
+    edges: dict[tuple, dict] = {}
+    chains: dict[str, dict] = {}
+    for src, dst, port, proto, et, title, sev, ts in _alert_rows(db, hours):
+        stage = _stage(f"{title} {et}")
+        e = edges.setdefault(
+            (str(src), str(dst), port),
+            {"source": str(src), "target": str(dst), "port": port, "protocol": proto,
+             "count": 0, "severity": "INFO", "last_seen": ts},
+        )
+        e["count"] += 1
+        e["severity"] = _worst(e["severity"], sev)
+        e["last_seen"] = max(e["last_seen"], ts)
+        c = chains.setdefault(str(src), {"ip": str(src), "stages": {}, "targets": set()})
+        c["stages"].setdefault(stage, ts)
+        c["stages"][stage] = min(c["stages"][stage], ts)
+        c["targets"].add(str(dst))
+    top_edges = sorted(edges.values(), key=lambda r: r["count"], reverse=True)[:limit]
+    attackers = []
+    for c in chains.values():
+        ordered = sorted(c["stages"].items(), key=lambda kv: kv[1])
+        attackers.append({
+            "ip": c["ip"],
+            "stages": [{"stage": s, "first_seen": t} for s, t in ordered],
+            "targets": len(c["targets"]),
+            "progress": max((STAGE_ORDER.index(s) + 1 for s, _ in ordered if s in STAGE_ORDER), default=0),
+        })
+    attackers.sort(key=lambda a: (a["progress"], len(a["stages"])), reverse=True)
+    return {"edges": top_edges, "attackers": attackers[:15], "stage_order": STAGE_ORDER}
+
+
+def get_geo(db: Session, hours: int, target_limit: int = 5) -> dict:
+    """Located attack origins plus the org's own (most-hit) targets, for the world map."""
+    from app.services.geo import home
+
+    sources = [s for s in get_top_sources(db, hours, 50) if s["geo"]]
+    return {
+        "home": home(),
+        "sources": sources,
+        "targets": get_top_targets(db, hours, target_limit),
+        "hours": hours,
+    }

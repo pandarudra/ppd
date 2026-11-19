@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import { useAuthStore } from "../stores/authStore";
 import { useAlertStore } from "../stores/alertStore";
 import { useIncidentStore } from "../stores/incidentStore";
+import { useEventStore } from "../stores/eventStore";
 import { useWsStore } from "../stores/wsStore";
 
 const WS_URL = import.meta.env.VITE_WS_URL || "ws://localhost:8000";
@@ -31,6 +32,9 @@ export function useWebSocket() {
         switch (type) {
           case "new_alert":
             useAlertStore.getState().prependAlert(payload);
+            break;
+          case "new_event":
+            useEventStore.getState().prependEvent(payload);
             break;
           case "alert_updated":
             useAlertStore.getState().updateAlert(payload);

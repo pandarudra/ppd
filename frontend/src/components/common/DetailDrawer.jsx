@@ -1,28 +1,29 @@
+import { createPortal } from "react-dom";
 import { X } from "lucide-react";
 
-export default function DetailDrawer({ open, onClose, title, children }) {
+export default function DetailDrawer({ open, onClose, title, actions, children }) {
   if (!open) return null;
 
-  return (
-    <div className="fixed inset-0 z-40 flex justify-end">
-      <div className="absolute inset-0 bg-black/20" onClick={onClose} />
+  return createPortal(
+    <div className="fixed inset-0 z-50 flex justify-end">
+      <div className="absolute inset-0 bg-black/60" onClick={onClose} />
       <div
         role="dialog"
         aria-label={title}
-        className="relative h-full w-full max-w-[520px] overflow-y-auto border-l border-hairline bg-canvas p-8"
+        className="relative h-full w-full max-w-[520px] overflow-y-auto border-l border-hairline bg-canvas p-6 shadow-[0_0_40px_rgba(0,0,0,0.4)] md:p-8"
       >
-        <div className="mb-8 flex items-center justify-between">
+        <div className="mb-6 flex items-center justify-between">
           <h2 className="text-heading-md">{title}</h2>
-          <button
-            onClick={onClose}
-            aria-label="Close"
-            className="flex h-9 w-9 items-center justify-center rounded-full bg-surface-soft text-ink"
-          >
-            <X size={18} />
-          </button>
+          <div className="flex items-center gap-2">
+            {actions}
+            <button onClick={onClose} aria-label="Close" className="flex h-9 w-9 items-center justify-center rounded-lg bg-surface text-ink">
+              <X size={18} />
+            </button>
+          </div>
         </div>
         {children}
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

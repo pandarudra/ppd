@@ -1,3 +1,4 @@
+import Markdown from "../common/Markdown";
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import DetailDrawer from "../common/DetailDrawer";
@@ -105,7 +106,7 @@ export default function AlertDetailDrawer({ alertId, onClose }) {
           {explanation && (
             <section>
               <h3 className="mb-2 text-heading-sm">AI explanation</h3>
-              <p className="whitespace-pre-wrap text-body-md text-body">{explanation.explanation}</p>
+              <Markdown>{explanation.explanation}</Markdown>
             </section>
           )}
 

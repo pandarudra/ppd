@@ -1,3 +1,4 @@
+from sqlalchemy import func
 from datetime import datetime, timezone
 
 from sqlalchemy.orm import Session
@@ -8,7 +9,7 @@ from app.models import ThreatIntelligence
 def lookup(db: Session, ioc_value: str, ioc_type: str) -> ThreatIntelligence | None:
     return (
         db.query(ThreatIntelligence)
-        .filter(ThreatIntelligence.ioc_value == ioc_value, ThreatIntelligence.ioc_type == ioc_type)
+        .filter(ThreatIntelligence.ioc_value == ioc_value, func.upper(ThreatIntelligence.ioc_type) == ioc_type.upper())
         .first()
     )
 
@@ -24,7 +25,7 @@ def add_ioc(
 ) -> ThreatIntelligence:
     now = datetime.now(timezone.utc)
     ioc = ThreatIntelligence(
-        ioc_type=ioc_type,
+        ioc_type=ioc_type.upper(),
         ioc_value=ioc_value,
         threat_type=threat_type,
         confidence=confidence,
@@ -49,7 +50,7 @@ def list_iocs(
 ) -> tuple[list[ThreatIntelligence], int]:
     query = db.query(ThreatIntelligence)
     if ioc_type:
-        query = query.filter(ThreatIntelligence.ioc_type == ioc_type)
+        query = query.filter(func.upper(ThreatIntelligence.ioc_type) == ioc_type.upper())
     if is_active is not None:
         query = query.filter(ThreatIntelligence.is_active == is_active)
     if confidence_min is not None:

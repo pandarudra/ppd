@@ -32,33 +32,25 @@ Status comes from reading the code. Tests and builds were **not** re-run for thi
 - [x] Router with protected routes, Zustand stores, Axios client with refresh, `useWebSocket` with backoff
 - [x] Pages: Login, Dashboard (KPI cards, severity chart, live alert feed, service health), Events (table + detail drawer), Alerts (queue + drawer + AI explain), Incidents (list + workspace + timeline), Assistant (chat)
 
+### SOC UI pass
+- [x] Attack path / pattern view: `/attack-paths` (source -> target -> port flow graph + per-attacker kill chain: recon -> brute force -> access -> exfiltration)
+- [x] Backend: `GET /analytics/attack-paths`, `/top-sources`, `/top-targets`, `/geo`, `/models`
+- [x] Live monitoring stream: `new_event` WebSocket message for every scored event, `/live` page (src, dst, port, proto, verdict)
+- [x] Past vs current on one screen: Live/History toggle + 1h/24h/7d/30d range on the dashboard
+- [x] World attack map, top attackers and targeted-assets panels (geo is a deterministic stand-in, see below)
+- [x] Syslog UDP forwarder `backend/scripts/syslog_listener.py`; demo replayer `backend/scripts/replay_traffic.py`
+- [x] Pages: Landing, Analytics, Model Performance, Threat Intel, User Management (admin), Settings
+- [x] Responsive pass (icon rail -> drawer, wrapping grids, scrollable tables)
+- [x] Incident context panel with threat-intel enrichment per source IP
+- [x] Frontend tests (vitest + RTL, `npm test`), backend tests for geo/stage helpers
+- [x] Theme decided: `plan/DESIGN.md` dark system is the source of truth; broken links fixed
+
 ## Left
 
-### Core to your vision (not built)
-- [ ] **Attack path / pattern view**: no graph or kill-chain view. Needs src -> dst -> port flow graph, grouping by attacker IP, stage sequence (recon -> brute force -> access), reusing `alert_groups`
-- [ ] **Backend endpoint for path data**: e.g. `GET /analytics/attack-paths` and `/analytics/top-sources` (nothing aggregates by src/dst pair yet)
-- [ ] **Live monitoring stream**: a real-time feed of every event (src IP, dst IP, port, proto, verdict). Today only alerts stream over WS, and Events is a static table
-- [ ] **Past vs current attacks on one screen**: time-range selector + live/history toggle on the dashboard (`/trends` exists, not used in the UI)
-- [ ] **Geo / top attackers / targeted assets panels** (src IP geo, most-hit dst)
-- [ ] **Real log collection**: only the HTTP ingest API exists. Needs an agent or forwarder (syslog UDP listener, Filebeat/Fluent Bit) for actual org systems
-- [ ] **Traffic generator / demo replayer** so the dashboard looks alive without real sources
-
-### Planned pages not built (ROADMAP Phase 6, Week 13)
-- [ ] Analytics & Reports page
-- [ ] ML Model Performance page (`/models` endpoint exists)
-- [ ] User Management page (admin)
-- [ ] Settings page
-- [ ] Threat Intel page (backend ready)
-- [ ] Responsive pass for small screens
-- [ ] Incident right-hand context panel and TI enrichment card (deliberately skipped in MVP)
-
-### Quality and release
-- [ ] Verify: run `pytest backend/tests`, `pytest ml_service/tests`, `npm run build`, and a manual `docker compose up` smoke test
-- [ ] Frontend tests (React Testing Library: AlertCard, MetricCard, etc.)
-- [ ] ML models are trained on synthetic data, so metrics of 1.0 are meaningless. Train/evaluate on UNSW-NB15 or CICIDS2017 per `AI_ML_DESIGN.md`
-- [ ] Finalize root `README.md` (setup steps, seeded credentials)
+- [ ] **Real geolocation**: `backend/app/services/geo.py` hashes public IPs onto a fixed city list. Swap `locate()` for a GeoLite2 lookup
+- [ ] **Real log collection at scale**: only a single-process UDP forwarder exists. Filebeat/Fluent Bit config and TLS syslog are not done
+- [ ] Verify end to end: `pytest backend/tests` (needs a disposable Postgres/Redis, NOT the production URLs in `backend/.env`) and a `docker compose up` smoke test. Only `ml_service` tests, `npm test` and `npm run build` were run for this update
+- [ ] Train/evaluate on UNSW-NB15 or CICIDS2017 (`scripts/run_ml.sh --train ...`). The dataset is not in the repo, and current metrics come from `prepared_balanced.csv`
 - [ ] Load test (50 WS clients), security tests, production deployment (ROADMAP Phases 9-10)
-
-### Housekeeping (uncommitted changes)
-- [ ] `plan/DESIGN.md` was rewritten as a light "Kaspersky Clean" theme and `plan/UI_UX_DESIGN.md` was deleted. The old design was a dark SOC theme, and `plan/README.md` and the MVP plan still link to the deleted file. Decide on the theme and fix the links
-- [ ] Commit the pending `frontend/package.json`, lockfile, `main.jsx` and `metrics.json` changes
+- [ ] Detection page from ARCHITECTURE 5.2 (not in this checklist's scope; Live stream covers the per-event view)
+- [ ] Commit the pending changes

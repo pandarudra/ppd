@@ -16,7 +16,7 @@ This directory contains the complete specifications, product requirements, syste
 | 💾 [**DATABASE_SCHEMA.md**](./DATABASE_SCHEMA.md) | **Database & Storage Architecture** | Schema Design Principles, 13 Relational Tables with Full PostgreSQL DDL (types, constraints, indexes), Mermaid ER Diagram, Entity Relationship Lifecycles. |
 | 🔌 [**API_SPECIFICATION.md**](./API_SPECIFICATION.md) | **REST & WebSocket API Specs** | RESTful Guidelines, 39 Fully Documented Endpoints across 10 Router Groups with Sample JSON Requests and Responses, 9 Real-Time WebSocket Events. |
 | 🛠️ [**TECH_STACK.md**](./TECH_STACK.md) | **Technology Stack Justification** | Comprehensive Technology Comparison (React/Vite vs Next.js, FastAPI vs Django, PostgreSQL vs MongoDB), Local Development Setup with Docker Compose. |
-| 🎨 [**UI_UX_DESIGN.md**](./UI_UX_DESIGN.md) | **UI/UX & Application Workspaces** | Cybersecurity Dark Mode Design System, Severity Palette, Component Hierarchies, Wireframe Layouts and Interactions for All 12 Pages. |
+| 🎨 [**DESIGN.md**](./DESIGN.md) | **Design system** | Dark canvas + surface ladder, green/blue two-signal accents, Inter 600/800, component specs. Severity colors are data colors layered on top. |
 | 🛡️ [**SECURITY_CONTROLS.md**](./SECURITY_CONTROLS.md) | **Security, Safety & Guardrails** | Cryptographic JWT Token Lifecycle, Bcrypt Hashing, RBAC Enforcement, Prompt Injection Mitigation, Model Integrity Checks, Two-Person Human-in-the-Loop SOAR Controls. |
 | 🗺️ [**ROADMAP.md**](./ROADMAP.md) | **Roadmap, Testing & Evaluation** | 10 Implementation Phases across 20 Weeks with Completion Criteria, Multi-Tier Testing Strategy, 10 Technical Risks & Mitigations, Academic Gap Mapping to Khayat et al. (2025). |
 

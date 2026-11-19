@@ -81,4 +81,10 @@ def extract_features(event) -> dict:
             ttl_avg=50.0,
         )
 
+    # Flow-stat overrides: a JSON/netflow-style event may carry any feature by name
+    # (e.g. {"unique_dst_ports": 900}); these beat the defaults and the "fail" nudge above.
+    for k, v in (event.normalized_data or {}).items():
+        if k in DEFAULTS and isinstance(v, (int, float)):
+            features[k] = v
+
     return features

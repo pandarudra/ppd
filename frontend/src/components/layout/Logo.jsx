@@ -1,6 +1,5 @@
-import { Shield } from "lucide-react";
+import { EarthLock } from "lucide-react";
 
-// ponytail: stroke-only shield stands in for the spec's mascot; swap for a drawn mark when one exists.
 export default function Logo({ size = 24 }) {
-  return <Shield size={size} strokeWidth={1.5} className="text-ink" aria-hidden />;
+  return <EarthLock size={size} strokeWidth={2} className="text-primary" aria-hidden />;
 }

@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 
 from app.core.database import get_db
 from app.core.dependencies import get_current_user, require_role
-from app.models import Alert, Incident, IncidentAlert, ResponseAction, User
+from app.models import Alert, Incident, IncidentAlert, ResponseAction, SecurityEvent, User
 from app.schemas.incident import (
     IncidentCreate,
     IncidentDetail,
@@ -109,8 +109,9 @@ async def get_incident(
     incident = _get_or_404(db, incident_id)
 
     linked = (
-        db.query(Alert)
+        db.query(Alert, SecurityEvent.source_ip, SecurityEvent.dest_ip)
         .join(IncidentAlert, Alert.id == IncidentAlert.alert_id)
+        .outerjoin(SecurityEvent, SecurityEvent.id == Alert.event_id)
         .filter(IncidentAlert.incident_id == incident.id)
         .all()
     )
@@ -124,8 +125,11 @@ async def get_incident(
         created_by=_user_ref(db, incident.created_by),
         assigned_to=_user_ref(db, incident.assigned_to),
         linked_alerts=[
-            LinkedAlertSummary(alert_id=str(a.alert_id), title=a.title, severity=a.severity)
-            for a in linked
+            LinkedAlertSummary(
+                alert_id=str(a.alert_id), title=a.title, severity=a.severity,
+                source_ip=str(src) if src else None, dest_ip=str(dst) if dst else None,
+            )
+            for a, src, dst in linked
         ],
         created_at=incident.created_at,
         updated_at=incident.updated_at,

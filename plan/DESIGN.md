@@ -1,216 +1,280 @@
----
-version: alpha
-name: Kaspersky Clean Security
-description: A light, trustworthy marketing system with strong teal accents, airy spacing, and disciplined editorial typography.
-colors:
-  primary: "#00836f"
-  secondary: "#1d1d1b"
-  tertiary: "#444444"
-  neutral: "#ffffff"
-  surface: "#f7f7f7"
-  on-surface: "#1d1d1b"
-  muted: "#6f6f6f"
-  border: "#d9d9d9"
-  accent-soft: "#bfe9e1"
-  error: "#d64545"
-typography:
-  headline-display:
-    fontFamily: KasperskySansDisplay
-    fontSize: 40px
-    fontWeight: 300
-    lineHeight: 48px
-    letterSpacing: 0px
-  headline-lg:
-    fontFamily: KasperskySansDisplay
-    fontSize: 32px
-    fontWeight: 300
-    lineHeight: 48px
-    letterSpacing: 0px
-  headline-md:
-    fontFamily: KasperskySansDisplay
-    fontSize: 25px
-    fontWeight: 300
-    lineHeight: 25px
-    letterSpacing: 0px
-  headline-sm:
-    fontFamily: KasperskySansDisplay
-    fontSize: 20px
-    fontWeight: 300
-    lineHeight: 24px
-    letterSpacing: 0px
-  body-lg:
-    fontFamily: KasperskySansDisplay
-    fontSize: 18px
-    fontWeight: 300
-    lineHeight: 28px
-    letterSpacing: 0px
-  body-md:
-    fontFamily: KasperskySansDisplay
-    fontSize: 16px
-    fontWeight: 300
-    lineHeight: 24px
-    letterSpacing: 0px
-  body-sm:
-    fontFamily: KasperskySansDisplay
-    fontSize: 14px
-    fontWeight: 300
-    lineHeight: 20px
-    letterSpacing: 0px
-  label-lg:
-    fontFamily: KasperskySansDisplay
-    fontSize: 24px
-    fontWeight: 400
-    lineHeight: 32px
-    letterSpacing: 0px
-  label-md:
-    fontFamily: KasperskySansDisplay
-    fontSize: 16px
-    fontWeight: 400
-    lineHeight: 24px
-    letterSpacing: 0px
-  label-sm:
-    fontFamily: KasperskySansDisplay
-    fontSize: 14px
-    fontWeight: 400
-    lineHeight: 20px
-    letterSpacing: 0px
-  nav:
-    fontFamily: KasperskySansDisplay
-    fontSize: 16px
-    fontWeight: 400
-    lineHeight: 24px
-    letterSpacing: 0px
-  eyebrow:
-    fontFamily: KasperskySansDisplay
-    fontSize: 12px
-    fontWeight: 500
-    lineHeight: 16px
-    letterSpacing: 0.04em
-rounded:
-  none: 0px
-  sm: 4px
-  md: 8px
-  lg: 16px
-  xl: 24px
-  full: 9999px
-spacing:
-  xs: 8px
-  sm: 24px
-  md: 40px
-  lg: 56px
-  xl: 120px
-  gutter: 32px
-  section: 80px
-components:
-  button-primary:
-    backgroundColor: "{colors.primary}"
-    textColor: "{colors.neutral}"
-    typography: "{typography.label-lg}"
-    rounded: "{rounded.sm}"
-    padding: 24px 32px
-    size: 240px
-    height: 64px
-  button-secondary:
-    backgroundColor: "transparent"
-    textColor: "{colors.secondary}"
-    typography: "{typography.label-lg}"
-    rounded: "{rounded.sm}"
-    padding: 24px 32px
-    size: 240px
-    height: 64px
-  button-link:
-    backgroundColor: "transparent"
-    textColor: "{colors.tertiary}"
-    typography: "{typography.body-md}"
-    rounded: "{rounded.none}"
-    padding: 0px
-    height: 24px
-  card:
-    backgroundColor: "{colors.neutral}"
-    textColor: "{colors.on-surface}"
-    rounded: "{rounded.sm}"
-    padding: 0px 16px
-  tab-active:
-    backgroundColor: "#2aa7f6"
-    textColor: "{colors.on-surface}"
-    typography: "{typography.label-lg}"
-    rounded: "{rounded.full}"
-    padding: 12px 24px
-  tab-inactive:
-    backgroundColor: "#b7dcf4"
-    textColor: "{colors.on-surface}"
-    typography: "{typography.label-lg}"
-    rounded: "{rounded.full}"
-    padding: 12px 24px
-  top-nav:
-    backgroundColor: "{colors.neutral}"
-    textColor: "{colors.tertiary}"
-    typography: "{typography.nav}"
-    height: 64px
----
-
-# Kaspersky Clean Security
-
 ## Overview
 
-Kaspersky’s interface feels bright, restrained, and highly credible, with a marketing-led presentation that prioritizes reassurance over flash. The visual tone is professional and approachable: plenty of white space, a calm teal accent, and large editorial headlines give the site a confident but friendly voice. The layout is spacious and airy, allowing imagery and copy to breathe while keeping the messaging easy to scan.
+1win is a crypto casino and sportsbook that runs almost entirely on a near-black canvas (`{colors.canvas}` — #141415), a flat, slightly cool dark field that lets thousands of vibrant game thumbnails do the shouting. The chrome around the content is deliberately quiet: dark-grey surfaces (`{colors.surface}` — #2e3035), faint translucent hairlines, and off-white text (`{colors.ink}` — #f0f2f5). Against that restraint, two action colors carry the entire interactive layer — a vivid green (`{colors.primary}` — #00b24b) on the "Registration" CTA and every primary confirm, and an electric blue (`{colors.secondary}` — #0075ff) on "Log In", links, the "Show more" pill, active tabs, and bet highlights.
+
+The layout is a high-density product surface, not a marketing page. A fixed left icon rail holds category navigation; the main column is a long stack of horizontally-scrolling rails — "Top games", "Slots", "Originals", game providers — each a row of full-bleed, brightly-illustrated `game-tile` thumbnails. Promotional bonuses ride in gradient-rich `hero-banner` cards at the top, and the sportsbook adds match rows with `bet-odds-button` chips and a right-hand `betslip-panel`. Typography is Inter set at heavy weights only (600 and 800) — even body copy is semibold — which gives the dense UI a punchy, app-like confidence rather than an editorial calm.
+
+Color discipline is the key to reading this brand correctly: the loud purples, reds, ambers, and violets that fill the screen all live _inside_ game artwork and bonus-card illustrations — they are content, not chrome. The system itself is monochrome dark plus exactly two signals: green for "go / win / register" and blue for "secondary / navigate / live". Everything structural is built from the dark surface ladder and those two accents.
+
+**Key Characteristics:**
+
+- Near-black `{colors.canvas}` foundation with a flat `{colors.surface}` card/tile ladder — depth comes from surface shifts and faint `{colors.hairline}` borders, not heavy shadow.
+- Two-signal action system: green `{colors.primary}` for primary CTAs (Registration, confirm) and blue `{colors.secondary}` for secondary actions, links, and live/betting highlights.
+- Inter at heavy weights only (600 / 800) — even `{typography.body}` is semibold, giving the dense UI an app-like punch.
+- Content-forward game rails — full-bleed `game-tile` artwork supplies all the saturation; the surrounding frame stays monochrome dark.
+- Pill language for badges and status (`{rounded.full}`), modest `{rounded.lg}`–`{rounded.xl}` on buttons, and `{rounded.card}` (16px) on tiles, promo cards, and panels.
+- A left icon `sidebar-rail` + dense horizontally-scrolling rails define the shell, closer to a native app than a website.
 
 ## Colors
 
-- **Primary (#00836f):** The brand teal used for core CTAs, active states, highlights, and links that need to feel trustworthy and decisive.
-- **Secondary (#1d1d1b):** A near-black ink used for major headlines, strong body text, and structural UI elements that need maximum contrast.
-- **Tertiary (#444444):** The main paragraph text color and subdued UI text; softer than the headline black but still highly readable.
-- **Neutral (#ffffff):** The dominant background color, creating the clean, open canvas that defines the page.
-- **Surface (#f7f7f7):** A very light off-white supporting panels, subtle sections, or low-emphasis blocks when separation is needed without heavy framing.
-- **On-surface (#1d1d1b):** The text color for content placed on white cards, tabs, and other light surfaces.
-- **Muted (#6f6f6f):** Secondary metadata and low-emphasis interface copy, such as supporting labels or compatibility text.
-- **Border (#d9d9d9):** A soft divider tone for understated rules, separators, and structural boundaries.
-- **Accent-soft (#bfe9e1):** A pale teal tint for inactive pills, soft backgrounds, and subtle branded emphasis.
-- **Error (#d64545):** Reserved for validation and destructive states; not visually dominant in the observed marketing screens.
+> Source pages analyzed: home, promotions, betting, vip-club.
+
+### Brand & Accent
+
+- **Action Green** (`{colors.primary}` — #00b24b): The primary action color — the "Registration" CTA, primary confirms, betslip place-bet, and section accent icons. The brand's "go / win" signal.
+- **Electric Blue** (`{colors.secondary}` — #0075ff): The secondary action — "Log In", text links, the "Show more" pill, active tabs, badges, and live/betting highlights.
+- **On Primary** (`{colors.on-primary}` — #ffffff): White text/icons on the green and blue fills.
+
+### Surface
+
+- **Canvas** (`{colors.canvas}` — #141415): The page background and the fill of the nav and `sidebar-rail` — a flat near-black.
+- **Surface** (`{colors.surface}` — #2e3035): Cards, game tiles, promo cards, betslip panels, utility buttons, and input fields — the single elevated dark step.
+- **Hairline** (`{colors.hairline}` — #2d2f33): The faint 1px divider/card border, a translucent cool-grey edge that reads against both canvas and surface.
+
+### Text
+
+- **Ink** (`{colors.ink}` — #f0f2f5): Primary text, the wordmark, and headings — a soft off-white.
+- **Muted** (`{colors.muted}` — #9aa1b1): Secondary labels, inactive nav glyphs, footer text.
+- **Faint** (`{colors.faint}` — #53575f): Tertiary/placeholder text and disabled labels.
+- **Black** (`{colors.black}` — #000000): Maximum-contrast text used on the brightest accent fills and light promo surfaces.
 
 ## Typography
 
-Kaspersky Sans Display is the primary voice across the UI, with a light weight for headlines and body copy to keep the system refined and modern. Headlines are set in large, clean display sizes with generous line heights, giving the page its editorial feel; the biggest titles use `headline-display` at 40px/48px, while supporting section titles step down through `headline-lg`, `headline-md`, and `headline-sm`. Body text remains calm and highly readable in `body-md` and `body-sm`, while labels and navigation use `label-md`, `label-lg`, and `nav` with regular weight for clarity.
+### Font Family
 
-Letter spacing is mostly neutral, but small uppercase-style utility labels and compact interface text may benefit from slight spacing only when needed for legibility. The overall typographic rhythm is smooth and low-contrast rather than bold or condensed, which reinforces the brand’s measured, reassuring tone.
+The entire system is set in **Inter** (`Inter, sans-serif`), and only at heavy weights — **600 (semibold)** and **800 (extrabold)**. There is no regular-weight body text; even running copy is semibold, which is what gives the dense, data-heavy interface its punchy, native-app feel. Headlines and bonus figures use 800; everything functional uses 600.
+
+### Hierarchy
+
+| Token                  | Size | Weight | Line Height | Letter Spacing | Use                                                 |
+| ---------------------- | ---- | ------ | ----------- | -------------- | --------------------------------------------------- |
+| `{typography.display}` | 33px | 800    | 1.1         | 0              | Hero / page headlines (bonus figures, "Promotions") |
+| `{typography.heading}` | 20px | 800    | 1.2         | 0              | Section + card titles                               |
+| `{typography.title}`   | 16px | 600    | 1.3         | 0              | Game titles, row headers, outlined pills            |
+| `{typography.body}`    | 14px | 600    | 1.4         | 0              | Default body, button labels                         |
+| `{typography.ui}`      | 13px | 600    | 1.3         | 0              | Inline UI text, odds, metadata                      |
+| `{typography.caption}` | 12px | 600    | 1.3         | 0              | Badges, chips, micro-labels                         |
+
+### Principles
+
+Hierarchy is built from size and the 600↔800 weight jump, never from a light/regular contrast. The heavy floor keeps small UI text legible against the dark, busy backdrop and matches the high-energy gambling context.
+
+### Note on Font Substitutes
+
+Inter is an open-source Google Font, so no substitution is needed. If a fallback is required, any grotesque with a strong semibold (e.g. Manrope, Geist) preserves the heavy-weight character; keep body at 600+ to retain the app-like density.
 
 ## Layout
 
-The composition uses a wide, desktop-first marketing grid with generous margins and large content blocks anchored left and right. Sections feel centered within a broad canvas rather than constrained to a narrow column, and whitespace is used as a structural element to separate hero content, imagery, and award messaging.
+### Spacing System
 
-Spacing follows a clear modular rhythm based on 8px increments, with larger jumps at 24px, 40px, 56px, and 120px for major section breaks. Cards and callouts stay minimally padded, while hero text blocks rely more on vertical breathing room than on boxed containers. The result is spacious and uncluttered, with strong hierarchy achieved through distance instead of dense framing.
+- **Base unit**: 8px.
+- **Tokens (front matter)**: `{spacing.xxs}` 2px · `{spacing.xs}` 4px · `{spacing.sm}` 8px · `{spacing.md}` 12px · `{spacing.lg}` 16px · `{spacing.xl}` 20px · `{spacing.xxl}` 24px · `{spacing.xxxl}` 32px
+- Controls run tight — `{spacing.sm}`×`{spacing.md}` (8×12px) is the recurring button padding; cards and panels use `{spacing.lg}`–`{spacing.xxl}` (16–24px) interiors.
+
+### Grid & Container
+
+The shell is a fixed left icon `sidebar-rail` plus a fluid content column. Discovery uses horizontally-scrolling rails (carousels) of `game-tile` thumbnails rather than wrapping grids; the promotions page uses a 2-up card grid, and the sportsbook uses full-width match rows with a docked right-hand `betslip-panel`.
+
+### Whitespace Philosophy
+
+Density is the point — tiles pack close together to maximize the number of games in view, and the dark canvas itself does the separating between rails. Vertical gaps between labeled rails are modest; the brightness step between a tile and the canvas, plus a faint `{colors.hairline}`, supplies most of the structure.
+
+### Responsive Strategy
+
+#### Breakpoints
+
+| Name    | Width                   | Key Changes                                                                                  |
+| ------- | ----------------------- | -------------------------------------------------------------------------------------------- |
+| Mobile  | < 768px                 | Left rail collapses to a bottom/hamburger nav; rails shorten; betslip becomes a bottom sheet |
+| Tablet  | 768–1023px              | Condensed rail; fewer tiles per rail; 2-up promo grid retained                               |
+| Laptop  | 1024–1439px             | Full rail + multi-tile rails                                                                 |
+| Desktop | ≥ 1440px (up to 1920px) | Widest rails + persistent betslip panel                                                      |
+
+#### Touch Targets
+
+Buttons carry `{spacing.sm}`×`{spacing.md}` padding and pills clear comfortable tap sizes; the green `button-primary` is the largest, highest-priority tap surface. Aim for 44×44px minimum on the dense rails.
+
+#### Collapsing Strategy
+
+The left `sidebar-rail` collapses first (to a hamburger or bottom bar). Category tab strips and `bet-odds-button` rows become horizontally scrollable rather than wrapping. Game rails keep their carousel behavior at every width, simply showing fewer tiles. The `betslip-panel` docks to the right on desktop and becomes a bottom sheet on mobile.
+
+#### Image Behavior
+
+Game thumbnails are full-bleed inside `{rounded.card}` corners (no internal padding) in portrait-leaning and square ratios; the artwork supplies all the color. Promo cards carry edge-to-edge photography behind an `{colors.ink}` title. Tiles lazy-load as rails scroll into view, with the `{colors.surface}` tile color as the placeholder.
 
 ## Elevation & Depth
 
-Depth is subtle and mostly created through soft shadows, tonal contrast, and image masking rather than heavy material layering. The page uses a light shadow language for cards and top navigation, but most elements remain flat to preserve clarity and trust.
+Depth is mostly tonal — a flat two-step surface ladder rather than layered shadows.
 
-Shadow treatment should stay understated: `sm` for small UI lift, `lg` for larger content cards, and `md` for broader ambient separation when needed. Avoid deep or dramatic elevation; the design leans on white space, crisp edges, and imagery to create focus.
+| Level    | Treatment                                          | Use                                                        |
+| -------- | -------------------------------------------------- | ---------------------------------------------------------- |
+| 0        | `{colors.canvas}` flat                             | Page background, nav, sidebar rail                         |
+| 1        | `{colors.surface}` + `{colors.hairline}` border    | Cards, tiles, promo cards, betslip, buttons, inputs        |
+| Floating | `{colors.surface}` + soft `rgba(0,0,0,0.4)` shadow | Modals, dropdowns, the docked betslip lifted above content |
+
+### Decorative Depth
+
+The brand's visual richness comes from the game and promo artwork (radial-gradient bonus banners, illustrated tiles) layered on the flat dark canvas — not from UI shadows. Selected/active states use the green or blue accent as a glow-like emphasis rather than elevation.
 
 ## Shapes
 
-The shape language is soft but disciplined, with small radii on most interactive surfaces and stronger rounding used only for pill-style tabs. Buttons and cards favor `rounded.sm` for a precise, technical feel, while tabs use `rounded.full` to read as friendly capsules.
+### Border Radius Scale
 
-Overall, the system balances security and approachability: rounded enough to feel modern, but not so soft that it loses authority. Large media blocks can use custom clipping or masks, but the underlying component radius should remain modest.
+| Token            | Value | Use                                           |
+| ---------------- | ----- | --------------------------------------------- |
+| `{rounded.xs}`   | 4px   | Small chips, inner elements                   |
+| `{rounded.sm}`   | 6px   | Compact cards, small media                    |
+| `{rounded.md}`   | 8px   | Inputs, odds buttons, medium elements         |
+| `{rounded.lg}`   | 10px  | Primary / secondary / ghost buttons           |
+| `{rounded.xl}`   | 12px  | Utility buttons                               |
+| `{rounded.card}` | 16px  | Game tiles, promo cards, hero banners, panels |
+| `{rounded.full}` | 999px | Pills, badges, avatars, circular controls     |
+
+### Photography Geometry
+
+Game artwork is framed at `{rounded.card}` (16px) and runs full-bleed inside the tile. Promo cards use the same 16px frame with edge-to-edge imagery. Avatars, status badges, and provider chips use `{rounded.full}`. There is no exposed photography outside the gaming/promo content — the structural chrome stays geometric and flat.
 
 ## Components
 
-Buttons are prominent and generously sized. Use `button-primary` for the main action: solid teal background, white text, 240px minimum width, 64px height, and 24px/32px padding. `button-secondary` is an outlined alternative with transparent fill and dark text/border, matching the same size and weight as the primary button. `button-link` is reserved for inline actions such as renewals or contextual navigation; it should remain text-only, underlined, and visually quiet.
+> **No hover states documented.** Each spec covers Default and Active/Pressed only. Variants live as separate `components:` entries.
 
-Tabs and segmented controls should use `tab-active` and `tab-inactive`. Active tabs are saturated blue-teal with dark text; inactive tabs are a lighter soft blue with the same pill shape. Keep tab labels large and legible, with enough horizontal padding to feel touch-friendly.
+### Buttons
 
-Cards should use the `card` token: white surface, subtle shadow, and small radius. They should avoid ornamental borders unless separation is required, and internal padding should remain minimal for a clean content-led presentation.
+**`button-primary`** — the green "Registration" / primary-confirm CTA, the highest-visibility control.
 
-Top navigation should use `top-nav` on a white background with compact, readable text. Utility icons and account controls should be lightweight and unobtrusive, with teal reserved for the most important account or action area.
+- Background `{colors.primary}`, text `{colors.on-primary}`, type `{typography.body}`, rounded `{rounded.lg}`, padding `{spacing.sm}` `{spacing.md}` (8×12px).
 
-Inputs are not prominent in the observed screen, but if added they should follow the same visual language: white or surface backgrounds, modest borders, and square-to-soft rounding rather than fully pill-shaped fields. Keep focus states clear and brand-consistent, using teal outlines or fills rather than heavy shadows.
+**`button-secondary`** — the blue "Log In" / secondary action and the "Show more" pill.
+
+- Background `{colors.secondary}`, text `{colors.on-primary}`, type `{typography.body}`, rounded `{rounded.lg}`, padding 8×12px.
+
+**`button-tertiary`** — the dark-grey utility button ("More events", "Read more").
+
+- Background `{colors.surface}`, text `{colors.ink}`, type `{typography.body}`, rounded `{rounded.xl}`, padding 8×12px.
+
+**`button-ghost`** — a low-emphasis grey control on dense rows.
+
+- Background `{colors.surface}`, text `{colors.ink}`, type `{typography.body}`, rounded `{rounded.lg}`, padding `0` `{spacing.sm}` (0×8px).
+
+### Navigation
+
+**`top-nav`** — the sticky header carrying the 1win wordmark, search, balance, and the green Registration + blue Log In CTAs.
+
+- Background `{colors.canvas}`, text `{colors.ink}`, padding 8×16px, with a `{colors.hairline}` base edge.
+
+**`sidebar-rail`** — the fixed left icon rail (Casino, Sports, categories).
+
+- Background `{colors.canvas}`, glyphs `{colors.muted}`, padding `{spacing.sm}`. Active item marked in `{colors.primary}`.
+
+### Inputs & Forms
+
+**`text-input`** — search and betslip amount fields.
+
+- Background `{colors.surface}`, text `{colors.ink}`, placeholder `{colors.faint}`, border `{colors.hairline}`, type `{typography.body}`, rounded `{rounded.md}`, padding 8×12px.
+
+**`bet-odds-button`** — the odds chip in sportsbook match rows.
+
+- Background `{colors.surface}`, text `{colors.ink}`, type `{typography.ui}`, rounded `{rounded.md}`, padding 8×12px. Selected state highlights in `{colors.secondary}`.
+
+### Pills & Badges
+
+**`pill-badge`** — the solid blue status/count badge.
+
+- Background `{colors.secondary}`, text `{colors.on-primary}`, type `{typography.caption}`, rounded `{rounded.full}`, padding `0` `{spacing.xs}` (0×4px).
+
+**`pill-outline`** — the bordered filter/category pill.
+
+- Text `{colors.ink}`, type `{typography.title}`, rounded `{rounded.full}`, padding 0×8px, with a `{colors.hairline}` border.
+
+### Cards & Containers
+
+**`game-tile`** — the core discovery unit: a full-bleed game thumbnail.
+
+- Background `{colors.surface}` (placeholder), rounded `{rounded.card}`. Artwork fills edge-to-edge with no padding.
+
+**`hero-banner`** — the top welcome-bonus / promo banner.
+
+- Background `{colors.surface}` with edge-to-edge gradient imagery, headline `{colors.ink}` in `{typography.display}`, rounded `{rounded.card}`, padding `{spacing.xxl}`.
+
+**`promo-card`** — a promotions-page card (full-bleed photo + title + chips).
+
+- Background `{colors.surface}`, title `{colors.ink}`, rounded `{rounded.card}`, padding `{spacing.lg}`.
+
+**`feature-card`** — generic dark content card.
+
+- Background `{colors.surface}`, text `{colors.ink}`, border `{colors.hairline}`, rounded `{rounded.card}`, padding `{spacing.lg}`.
+
+**`feature-card-elevated`** — a feature card lifted above the page (floating shadow), base for modal/toast surfaces.
+
+- Background `{colors.surface}`, text `{colors.ink}`, rounded `{rounded.card}`, padding `{spacing.lg}`, soft `rgba(0,0,0,0.4)` shadow.
+
+**`betslip-panel`** — the docked sportsbook betslip / wheel-of-fortune panel.
+
+- Background `{colors.surface}`, text `{colors.ink}`, rounded `{rounded.card}`, padding `{spacing.lg}`. Confirm action uses `button-primary`.
+
+**`footer`** — the page footer (support, information, categories columns).
+
+- Background `{colors.canvas}`, text `{colors.muted}`, headings `{colors.ink}`, padding `{spacing.xxl}`.
+
+### Examples (illustrative)
+
+> Kit-mirror demonstration surfaces. Each `ex-*` entry references 1win's brand-native primitives (`{colors.surface}`, `{colors.primary}`, `{rounded.card}`, the spacing scale) so downstream consumers re-skin the same 10 illustrative surfaces consistently. These are not extracted brand components.
+
+**`ex-pricing-tier`** — Default Pricing tier card. Re-uses feature-card chrome with brand canvas-soft surface.
+
+- Properties: `backgroundColor`, `textColor`, `borderColor`, `rounded`, `padding`
+
+**`ex-pricing-tier-featured`** — Featured/highlighted tier — polarity-flipped surface (dark fill + light text in light mode, light fill + dark text in dark mode).
+
+- Properties: `backgroundColor`, `textColor`, `rounded`, `padding`
+
+**`ex-product-selector`** — What's Included summary card — re-purposed for SaaS / B2B verticals (NOT a literal product gallery).
+
+- Properties: `backgroundColor`, `rounded`, `padding`
+
+**`ex-cart-drawer`** — Subscription summary — re-purposed for SaaS / B2B (line items per add-on, not literal cart).
+
+- Properties: `backgroundColor`, `rounded`, `padding`, `item-divider`
+
+**`ex-app-shell-row`** — Sidebar nav row inside the App Shell example. Active state uses brand primary as the indicator.
+
+- Properties: `backgroundColor`, `activeIndicator`, `rounded`, `padding`
+
+**`ex-data-table-cell`** — Default data-table th + td chrome. Header uses mono-caps eyebrow typography; body uses body-sm.
+
+- Properties: `headerBackground`, `headerTypography`, `bodyTypography`, `cellPadding`, `rowBorder`
+
+**`ex-auth-form-card`** — Sign-in / sign-up card. Re-uses feature-card chrome with text-input primitives inside.
+
+- Properties: `backgroundColor`, `rounded`, `padding`
+
+**`ex-modal-card`** — Modal dialog surface — same chrome as feature-card with elevated shadow.
+
+- Properties: `backgroundColor`, `rounded`, `padding`
+
+**`ex-empty-state-card`** — Empty-state illustration frame.
+
+- Properties: `backgroundColor`, `rounded`, `padding`, `captionTypography`
+
+**`ex-toast`** — Toast notification surface — feature-card shape + medium shadow.
+
+- Properties: `backgroundColor`, `rounded`, `padding`, `typography`
 
 ## Do's and Don'ts
 
-- Do keep layouts airy and image-led, with substantial whitespace around major content blocks.
-- Do use the teal primary color sparingly for actions, active states, and strategic emphasis.
-- Do maintain light typography weights and generous line heights for the editorial feel.
-- Do prefer small radii on core UI and reserve full rounding for tabs or chips.
-- Don't introduce dark backgrounds or high-contrast dramatic gradients that fight the calm brand tone.
-- Don't overuse heavy shadows, thick borders, or dense card grids.
-- Don't make buttons overly small or overly decorative; they should stay clear, large, and functional.
-- Don't switch to a condensed or highly geometric font style; keep Kaspersky Sans Display feeling open and readable.
+### Do
+
+- Reserve `{colors.primary}` (green) for primary actions — Registration, confirm, place-bet — and `{colors.secondary}` (blue) for secondary actions, links, and live/betting highlights.
+- Build depth with the surface ladder (`{colors.canvas}` → `{colors.surface}`) plus a faint `{colors.hairline}` edge; avoid heavy shadows.
+- Set every label in Inter 600+ (`{typography.body}` / `{typography.caption}`); use the 800 weight for headlines and bonus figures.
+- Let game and promo artwork supply the color — keep the surrounding chrome monochrome dark.
+- Use `{rounded.lg}`–`{rounded.xl}` on buttons, `{rounded.card}` (16px) on tiles/cards/panels, and `{rounded.full}` on pills and badges.
+- Pair accent fills with `{colors.on-primary}` (white) text for legibility.
+
+### Don't
+
+- Don't promote game-tile or bonus-banner gradient colors (the purples, reds, violets, ambers) into the UI palette — they are content, not chrome.
+- Don't add a third structural accent; the system is green + blue only.
+- Don't use pure-regular weights — there is no Inter 400 here; body copy is semibold.
+- Don't pad game tiles — artwork is full-bleed inside `{rounded.card}` corners.
+- Don't rely on drop shadows for elevation; the surface brightness step is the elevation language.

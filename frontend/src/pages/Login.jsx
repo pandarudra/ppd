@@ -1,12 +1,14 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Eye, EyeOff } from "lucide-react";
 import Button from "../components/common/Button";
+import WorldMap from "../components/charts/WorldMap";
 import Logo from "../components/layout/Logo";
 import { useAuth } from "../hooks/useAuth";
 
 export default function Login() {
   const navigate = useNavigate();
+  const from = useLocation().state?.from;
   const { login } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -24,7 +26,7 @@ export default function Login() {
     setLoading(true);
     try {
       await login(email, password);
-      navigate("/dashboard");
+      navigate(from || "/dashboard", { replace: true });
     } catch (err) {
       const detail = err?.response?.data?.detail;
       setError(typeof detail === "string" ? detail : "Invalid credentials.");
@@ -34,62 +36,37 @@ export default function Login() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col items-center bg-canvas px-4 pt-24 md:pt-section">
-      <Logo size={88} />
-      <p className="mt-4 text-body-sm text-body">Sentinel security operations</p>
-      <h1 className="mt-8 max-w-column text-center text-[28px] font-medium leading-[1.15] md:text-display-xl">
-        Every alert, explained and triaged in one place
-      </h1>
+    <div className="grid min-h-screen bg-canvas lg:grid-cols-2">
+      <div className="flex flex-col justify-center px-6 py-12 md:px-16">
+        <Link to="/" className="mb-10 flex items-center gap-2" aria-label="Back to home">
+          <Logo size={28} />
+          <span className="text-heading-md">Sentinel</span>
+        </Link>
+        <h1 className="text-display-xl">Sign in to the console</h1>
+        <p className="mt-2 text-body-md text-body">Security operations, in one place.</p>
 
-      <form onSubmit={handleSubmit} className="mt-12 w-full max-w-sm space-y-4" noValidate>
-        <div>
-          <label htmlFor="email" className="label">
-            Email
-          </label>
-          <input
-            id="email"
-            type="email"
-            autoComplete="username"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="text-input"
-            placeholder="analyst@sentinel.local"
-          />
-        </div>
-        <div>
-          <label htmlFor="password" className="label">
-            Password
-          </label>
-          <div className="relative">
-            <input
-              id="password"
-              type={showPassword ? "text" : "password"}
-              autoComplete="current-password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="text-input pr-11"
-            />
-            <button
-              type="button"
-              onClick={() => setShowPassword((s) => !s)}
-              aria-label={showPassword ? "Hide password" : "Show password"}
-              className="absolute right-1 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full text-body"
-            >
-              {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-            </button>
+        <form onSubmit={handleSubmit} className="mt-8 w-full max-w-sm space-y-4" noValidate>
+          <div>
+            <label htmlFor="email" className="label">Email</label>
+            <input id="email" type="email" autoComplete="username" value={email} onChange={(e) => setEmail(e.target.value)} className="text-input" placeholder="analyst@sentinel.local" />
           </div>
-        </div>
-
-        {error && (
-          <p role="alert" className="text-body-sm text-ink">
-            {error}
-          </p>
-        )}
-
-        <Button type="submit" className="w-full" disabled={loading}>
-          {loading ? "Signing in…" : "Sign in"}
-        </Button>
-      </form>
+          <div>
+            <label htmlFor="password" className="label">Password</label>
+            <div className="relative">
+              <input id="password" type={showPassword ? "text" : "password"} autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} className="text-input pr-11" />
+              <button type="button" onClick={() => setShowPassword((s) => !s)} aria-label={showPassword ? "Hide password" : "Show password"} className="absolute right-1 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-md text-body">
+                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+              </button>
+            </div>
+          </div>
+          {error && <p role="alert" className="text-body-sm text-sev-critical">{error}</p>}
+          <Button type="submit" className="h-10 w-full" disabled={loading}>{loading ? "Signing in…" : "Sign in"}</Button>
+        </form>
+      </div>
+      <div className="relative hidden items-center overflow-hidden border-l border-hairline bg-panel lg:flex" aria-hidden>
+        <div className="absolute inset-0 bg-[radial-gradient(70%_60%_at_50%_30%,rgba(0,117,255,0.14),transparent)]" />
+        <WorldMap sources={[]} className="relative opacity-80" />
+      </div>
     </div>
   );
 }

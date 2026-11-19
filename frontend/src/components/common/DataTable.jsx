@@ -1,6 +1,6 @@
 export default function DataTable({ columns, rows, onRowClick, emptyMessage = "No data" }) {
   if (!rows?.length) {
-    return <p className="py-12 text-center text-body">{emptyMessage}</p>;
+    return <p className="card py-12 text-center text-body">{emptyMessage}</p>;
   }
 
   return (
@@ -9,7 +9,7 @@ export default function DataTable({ columns, rows, onRowClick, emptyMessage = "N
         <thead>
           <tr>
             {columns.map((col) => (
-              <th key={col.key} className="whitespace-nowrap px-4 py-3 text-left font-medium text-body">
+              <th key={col.key} className="eyebrow whitespace-nowrap px-4 py-3 text-left !font-semibold">
                 {col.label}
               </th>
             ))}
@@ -20,7 +20,7 @@ export default function DataTable({ columns, rows, onRowClick, emptyMessage = "N
             <tr
               key={row.id ?? idx}
               onClick={() => onRowClick?.(row)}
-              className={`border-t border-hairline ${onRowClick ? "cursor-pointer hover:bg-surface-soft" : ""}`}
+              className={`border-t border-hairline ${onRowClick ? "cursor-pointer hover:bg-white/[0.03]" : ""}`}
             >
               {columns.map((col) => (
                 <td key={col.key} className="whitespace-nowrap px-4 py-3 text-ink">

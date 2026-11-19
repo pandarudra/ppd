@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { SeverityBadge, StatusBadge } from "../common/Badge";
 import Button from "../common/Button";
 import Spinner from "../common/Spinner";
+import IncidentContext from "./IncidentContext";
 import IncidentTimeline from "./IncidentTimeline";
 import * as incidentsApi from "../../api/incidentsApi";
 import * as assistantApi from "../../api/assistantApi";
@@ -50,7 +51,8 @@ export default function IncidentWorkspace({ incidentId }) {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_260px]">
+    <div className="min-w-0 space-y-8">
       <div>
         <div className="mb-3 flex items-center gap-2">
           <SeverityBadge severity={incident.severity} />
@@ -104,8 +106,8 @@ export default function IncidentWorkspace({ incidentId }) {
               role="tab"
               aria-selected={tab === t}
               onClick={() => setTab(t)}
-              className={`h-8 rounded-full px-4 text-body-sm font-medium ${
-                tab === t ? "bg-surface-soft text-ink" : "text-body"
+              className={`h-8 rounded-lg px-4 text-body-sm ${
+                tab === t ? "bg-surface text-ink" : "text-body"
               }`}
             >
               {t}
@@ -131,6 +133,8 @@ export default function IncidentWorkspace({ incidentId }) {
           <p className="text-body">Notes are recorded automatically on the Timeline tab as the incident is worked.</p>
         )}
       </div>
+    </div>
+    <IncidentContext alerts={incident.linked_alerts} />
     </div>
   );
 }

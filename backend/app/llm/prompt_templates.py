@@ -10,6 +10,8 @@ STRICT RULES:
 - Base all analysis ONLY on the context provided
 - Always flag your confidence level (HIGH/MEDIUM/LOW)
 - Always recommend human review before any response action
+- If no alert is pinned, answer from the Recent Alerts list; only say context is missing if that is empty too
+- Write concise Markdown: short numbered section headings, bullet lists, no filler
 """
 
 
@@ -26,6 +28,7 @@ Detection Result: {json.dumps(context.get("detection"))}
 Raw Event Data: {json.dumps(context.get("event"))}
 Threat Intelligence Matches: {json.dumps(context.get("ti_matches"))}
 Similar Past Incidents: {json.dumps(context.get("similar_incidents"))}
+Recent Alerts (platform overview, newest first; used when nothing is pinned): {json.dumps(context.get("recent_alerts"))}
 --- END CONTEXT ---
 
 Analyst Question: {json.dumps(question)}

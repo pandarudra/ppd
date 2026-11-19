@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 
 from app.llm import llm_client
 from app.llm.prompt_templates import build_analysis_prompt
-from app.models import DetectionResult, Incident, SecurityEvent
+from app.models import Alert, DetectionResult, Incident, SecurityEvent
 from app.services import alert_service, event_service, incident_service, intelligence_service
 
 SECTION_PATTERN = re.compile(
@@ -55,6 +55,7 @@ def gather_context(
         "event": None,
         "ti_matches": [],
         "similar_incidents": [],
+        "recent_alerts": [],
     }
 
     alert = alert_service.get_alert_by_uuid(db, alert_id) if alert_id else None
@@ -102,6 +103,23 @@ def gather_context(
         }
 
     incident = incident_service.get_incident_by_uuid(db, incident_id) if incident_id else None
+
+    if not (alert or event or incident):
+        # Nothing pinned: give the model the platform's recent activity so general
+        # questions ("summarize recent alerts") have something to work from.
+        rows = (
+            db.query(Alert, SecurityEvent.source_ip, SecurityEvent.dest_ip, SecurityEvent.dest_port)
+            .outerjoin(SecurityEvent, SecurityEvent.id == Alert.event_id)
+            .order_by(Alert.created_at.desc())
+            .limit(15)
+            .all()
+        )
+        context["recent_alerts"] = [
+            {"title": a.title, "severity": a.severity, "status": a.status, "source_ip": src,
+             "dest_ip": dst, "dest_port": port, "created_at": a.created_at.isoformat()}
+            for a, src, dst, port in rows
+        ]
+
     if incident:
         # No real similarity search in this MVP slice; approximate "similar
         # past incidents" with the most recent incidents of the same

@@ -73,6 +73,20 @@ npm run dev
 | admin | `admin@sentinel.local` | `admin123` |
 | analyst | `analyst@sentinel.local` | `analyst123` |
 
+### Run the three services
+
+`scripts/run_backend.sh [--seed]`, `scripts/run_ml.sh [--train unsw <csvs>]`, `scripts/run_frontend.sh`.
+
+### Make the dashboard come alive
+
+```bash
+python backend/scripts/replay_traffic.py --rate 2        # synthetic benign + attack traffic
+python backend/scripts/syslog_listener.py --port 5514    # forward real syslog (udp) into /events/ingest
+```
+
+Open http://localhost:5173, sign in, and watch the Overview map, Live stream and Attack paths fill in.
+Attacker locations are a deterministic stand-in (no GeoIP database); set `VITE_HOME_LAT`/`VITE_HOME_LON` to place your network on the map.
+
 ### Try the detection pipeline
 
 ```bash

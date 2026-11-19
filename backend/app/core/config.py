@@ -17,7 +17,7 @@ class Settings(BaseSettings):
     NVIDIA_API_KEY: str = ""
     NVIDIA_MODEL: str = "meta/llama-3.1-70b-instruct"
     GEMINI_API_KEY: str = ""
-    GEMINI_MODEL: str = "gemini-1.5-flash"
+    GEMINI_MODEL: str = "gemini-2.5-flash"
 
 
 settings = Settings()

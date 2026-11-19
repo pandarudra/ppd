@@ -65,12 +65,14 @@ export default function ChatWindow() {
         {messages.map((m, i) => (
           <MessageBubble key={i} role={m.role} content={m.content} />
         ))}
-        {analyzeMutation.isPending && <Spinner />}
+        {analyzeMutation.isPending && (
+          <div className="flex items-center gap-3 text-body-sm text-body"><Spinner /> Analyzing…</div>
+        )}
       </div>
 
       <div className="flex flex-wrap gap-2">
         {SUGGESTED_PROMPTS.map((p) => (
-          <button key={p} onClick={() => send(p)} className="command-tag font-sans">
+          <button key={p} onClick={() => send(p)} className="command-tag font-sans hover:bg-hairline-strong">
             {p}
           </button>
         ))}
@@ -81,7 +83,7 @@ export default function ChatWindow() {
           e.preventDefault();
           send(input);
         }}
-        className="flex h-12 items-center gap-2 rounded-full bg-surface-soft pl-5 pr-1.5 focus-within:bg-canvas focus-within:ring-[3px] focus-within:ring-blue-500/50"
+        className="flex h-12 items-center gap-2 rounded-card border border-hairline bg-surface pl-4 pr-1.5 focus-within:border-secondary"
       >
         <input
           aria-label="Question"

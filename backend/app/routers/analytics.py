@@ -1,7 +1,9 @@
+import httpx
 import redis.asyncio as redis
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
+from app.core.config import settings
 from app.core.database import get_db
 from app.core.dependencies import get_current_user
 from app.core.redis_client import get_redis
@@ -28,3 +30,34 @@ async def trends(
     current_user: User = Depends(get_current_user),
 ):
     return analytics_service.get_trends(db, period, metric)
+
+
+@router.get("/models")
+async def models(current_user: User = Depends(get_current_user)):
+    try:
+        async with httpx.AsyncClient(timeout=5.0) as client:
+            r = await client.get(f"{settings.ML_SERVICE_URL}/models")
+            r.raise_for_status()
+            return r.json()
+    except httpx.HTTPError:
+        return {"models": {}}
+
+
+@router.get("/top-sources")
+async def top_sources(hours: int = 24, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    return {"sources": analytics_service.get_top_sources(db, hours)}
+
+
+@router.get("/top-targets")
+async def top_targets(hours: int = 24, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    return {"targets": analytics_service.get_top_targets(db, hours)}
+
+
+@router.get("/attack-paths")
+async def attack_paths(hours: int = 24, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    return analytics_service.get_attack_paths(db, hours)
+
+
+@router.get("/geo")
+async def geo(hours: int = 24, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    return analytics_service.get_geo(db, hours)

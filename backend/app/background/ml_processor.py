@@ -11,6 +11,11 @@ logger = logging.getLogger(__name__)
 ALERTABLE_RISK_LEVELS = ("MEDIUM", "HIGH", "CRITICAL")
 
 
+async def _broadcast(message: dict) -> None:
+    for role in ("analyst", "admin"):
+        await ws_manager.broadcast_to_role(role, message)
+
+
 async def process_event(event_id: int) -> None:
     db = SessionLocal()
     try:
@@ -35,6 +40,27 @@ async def process_event(event_id: int) -> None:
         event.status = "processed"
         db.commit()
 
+        from app.services.geo import locate
+
+        await _broadcast(
+            
+            {
+                "type": "new_event",
+                "payload": {
+                    "event_id": str(event.event_id),
+                    "source_ip": event.source_ip,
+                    "dest_ip": event.dest_ip,
+                    "dest_port": event.dest_port,
+                    "protocol": event.protocol,
+                    "event_type": event.event_type,
+                    "prediction": detection.prediction_label,
+                    "risk_level": detection.risk_level,
+                    "geo": locate(event.source_ip),
+                    "ts": event.ingested_at.isoformat() if event.ingested_at else None,
+                },
+            },
+        )
+
         if detection.risk_level in ALERTABLE_RISK_LEVELS:
             alert = alert_service.create_alert(db, event, detection)
 
@@ -42,8 +68,8 @@ async def process_event(event_id: int) -> None:
 
             correlate_alert(db, alert)
 
-            await ws_manager.broadcast_to_role(
-                "analyst",
+            await _broadcast(
+                
                 {
                     "type": "new_alert",
                     "payload": {
