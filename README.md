@@ -75,7 +75,7 @@ npm run dev
 
 ### Run the three services
 
-`scripts/run_backend.sh [--seed]`, `scripts/run_ml.sh [--train unsw <csvs>]`, `scripts/run_frontend.sh`.
+`scripts/run_backend.sh [--seed]`, `scripts/run_ml.sh [--train unsw <csvs>]`, `scripts/run_frontend.sh`, and `scripts/run_simulation.sh [scenario...] [--loop]` to replay simulated attacks.
 
 ### Make the dashboard come alive
 

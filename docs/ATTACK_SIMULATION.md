@@ -18,6 +18,16 @@ The simulator uses only the Python standard library, so any Python 3.9+ works, w
 
 ## 2. Quick start
 
+The shortest way is the launcher next to the other run scripts. It checks the backend and ML service first:
+
+```bash
+scripts/run_simulation.sh                      # every attack once
+scripts/run_simulation.sh phishing campaign    # chosen scenarios
+scripts/run_simulation.sh --loop               # repeat until Ctrl-C, for a live demo
+```
+
+It passes any other flag (`--delay`, `--repeat`, `--no-noise`, `--dry-run`, `--list`) straight to the simulator. Or call the simulator directly:
+
 ```bash
 python backend/scripts/simulate_attacks.py --list          # show every scenario
 python backend/scripts/simulate_attacks.py phishing        # one scenario
