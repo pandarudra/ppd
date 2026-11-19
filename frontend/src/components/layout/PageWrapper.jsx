@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { Menu, RefreshCw, X } from "lucide-react";
 import { useIsFetching, useQueryClient } from "@tanstack/react-query";
 import Sidebar from "./Sidebar";
+import Wordmark from "./Wordmark";
 import Logo from "./Logo";
 import { useWebSocket } from "../../hooks/useWebSocket";
 import { useAuthStore } from "../../stores/authStore";
@@ -78,7 +79,7 @@ export default function PageWrapper({ children }) {
             </button>
             <span className="flex items-center gap-2 md:hidden">
               <Logo size={20} />
-              <span className="text-heading-sm font-extrabold">Sentinel</span>
+              <Wordmark className="text-[18px]" />
             </span>
             <span className="eyebrow hidden md:inline">Sentinel · Security operations</span>
           </div>

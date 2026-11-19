@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, keepPreviousData } from "@tanstack/react-query";
+import Pagination, { usePagination } from "../components/common/Pagination";
 import { SeverityBadge, StatusBadge } from "../components/common/Badge";
 import IncidentWorkspace from "../components/incidents/IncidentWorkspace";
 import Spinner from "../components/common/Spinner";
@@ -9,9 +10,11 @@ import * as incidentsApi from "../api/incidentsApi";
 export default function Incidents() {
   const [selectedIncidentId, setSelectedIncidentId] = useState(null);
 
+  const pg = usePagination(10);
   const { data, isLoading } = useQuery({
-    queryKey: ["incidents"],
-    queryFn: () => incidentsApi.listIncidents({}),
+    queryKey: ["incidents", pg.page, pg.perPage],
+    queryFn: () => incidentsApi.listIncidents({ page: pg.page, per_page: pg.perPage }),
+    placeholderData: keepPreviousData,
   });
 
   return (
@@ -45,6 +48,7 @@ export default function Incidents() {
             })}
           </ul>
           {data && data.incidents.length === 0 && <p className="py-4 text-body">No incidents yet.</p>}
+          <Pagination compact page={pg.page} perPage={pg.perPage} total={data?.total} onPage={pg.setPage} />
         </aside>
 
         <div className="card min-w-0 flex-1 p-6 md:p-8">

@@ -54,3 +54,15 @@ test("WorldMap zoom controls and click-for-details", async () => {
   fireEvent.click(container.querySelector("circle.cursor-pointer"));
   expect(screen.getByRole("dialog", { name: "Map details" })).toHaveTextContent("Paris, FR");
 });
+
+test("Pagination shows range, pages and fires onPage", async () => {
+  const { fireEvent } = await import("@testing-library/react");
+  const Pagination = (await import("./common/Pagination")).default;
+  const onPage = vi.fn();
+  render(<Pagination page={2} perPage={25} total={120} onPage={onPage} onPerPage={() => {}} />);
+  expect(screen.getByText("Showing 26–50 of 120")).toBeInTheDocument();
+  fireEvent.click(screen.getByLabelText("Next page"));
+  expect(onPage).toHaveBeenCalledWith(3);
+  fireEvent.click(screen.getByLabelText("Page 5"));
+  expect(onPage).toHaveBeenCalledWith(5);
+});

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import Pagination, { usePagination } from "../components/common/Pagination";
 import { Pause, Play, Trash2 } from "lucide-react";
 import Button from "../components/common/Button";
 import Segmented from "../components/common/Segmented";
@@ -14,7 +15,9 @@ export default function LiveStream() {
   const setPaused = useEventStore((s) => s.setPaused);
   const clear = useEventStore((s) => s.clear);
   const [filter, setFilter] = useState("all");
-  const rows = filter === "all" ? events : events.filter(isHostile);
+  const pg = usePagination(25);
+  const all = filter === "all" ? events : events.filter(isHostile);
+  const rows = all.slice((pg.page - 1) * pg.perPage, pg.page * pg.perPage);
 
   return (
     <div className="space-y-6">
@@ -22,7 +25,7 @@ export default function LiveStream() {
         title="Live stream"
         actions={
           <>
-            <Segmented label="Filter" value={filter} onChange={setFilter} options={[{ value: "all", label: "All events" }, { value: "attacks", label: "Threats only" }]} />
+            <Segmented label="Filter" value={filter} onChange={(v) => { setFilter(v); pg.reset(); }} options={[{ value: "all", label: "All events" }, { value: "attacks", label: "Threats only" }]} />
             <Button variant="secondary" onClick={() => setPaused(!paused)}>{paused ? <Play size={14} /> : <Pause size={14} />}{paused ? "Resume" : "Pause"}</Button>
             <Button variant="secondary" onClick={clear}><Trash2 size={14} />Clear</Button>
           </>
@@ -63,6 +66,7 @@ export default function LiveStream() {
           </p>
         )}
       </div>
+      <Pagination page={pg.page} perPage={pg.perPage} total={all.length} onPage={pg.setPage} onPerPage={pg.setPerPage} />
     </div>
   );
 }

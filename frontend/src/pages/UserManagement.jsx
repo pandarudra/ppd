@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient, keepPreviousData } from "@tanstack/react-query";
+import Pagination, { usePagination } from "../components/common/Pagination";
 import Card from "../components/common/Card";
 import Button from "../components/common/Button";
 import Spinner from "../components/common/Spinner";
@@ -15,7 +16,12 @@ export default function UserManagement() {
   const qc = useQueryClient();
   const [form, setForm] = useState(EMPTY);
   const [error, setError] = useState("");
-  const { data, isLoading } = useQuery({ queryKey: ["users"], queryFn: () => usersApi.listUsers({ per_page: 100 }) });
+  const pg = usePagination();
+  const { data, isLoading } = useQuery({
+    queryKey: ["users", pg.page, pg.perPage],
+    queryFn: () => usersApi.listUsers({ page: pg.page, per_page: pg.perPage }),
+    placeholderData: keepPreviousData,
+  });
   const refresh = () => qc.invalidateQueries({ queryKey: ["users"] });
 
   async function create(e) {
@@ -70,6 +76,7 @@ export default function UserManagement() {
         {error && <p className="mt-3 text-body-sm text-ink" role="alert">{error}</p>}
       </Card>
       {isLoading ? <Spinner /> : <DataTable columns={columns} rows={data?.users} emptyMessage="No users." />}
+      <Pagination page={pg.page} perPage={pg.perPage} total={data?.total} onPage={pg.setPage} onPerPage={pg.setPerPage} />
     </div>
   );
 }

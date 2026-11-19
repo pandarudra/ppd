@@ -4,6 +4,7 @@ import { Eye, EyeOff } from "lucide-react";
 import Button from "../components/common/Button";
 import WorldMap from "../components/charts/WorldMap";
 import { DEMO_EURASIA } from "../utils/demoSources";
+import Wordmark from "../components/layout/Wordmark";
 import Logo from "../components/layout/Logo";
 import { useAuth } from "../hooks/useAuth";
 
@@ -41,7 +42,7 @@ export default function Login() {
       <div className="flex flex-col justify-center px-6 py-12 md:px-16">
         <Link to="/" className="mb-10 flex items-center gap-2" aria-label="Back to home">
           <Logo size={28} />
-          <span className="text-heading-md">Sentinel</span>
+          <Wordmark className="text-[24px]" />
         </Link>
         <h1 className="text-display-xl">Sign in to the console</h1>
         <p className="mt-2 text-body-md text-body">Security operations, in one place.</p>

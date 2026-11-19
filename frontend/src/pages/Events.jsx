@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, keepPreviousData } from "@tanstack/react-query";
 import { Search } from "lucide-react";
+import Pagination, { usePagination } from "../components/common/Pagination";
 import EventTable from "../components/events/EventTable";
 import EventDetailDrawer from "../components/events/EventDetailDrawer";
 import Spinner from "../components/common/Spinner";
@@ -14,15 +15,18 @@ export default function Events() {
   const [filters, setFilters] = useState(EMPTY);
   const [selectedEventId, setSelectedEventId] = useState(null);
 
-  const cleanParams = Object.fromEntries(Object.entries(filters).filter(([, v]) => v));
+  const pg = usePagination();
+  const cleanParams = { ...Object.fromEntries(Object.entries(filters).filter(([, v]) => v)), page: pg.page, per_page: pg.perPage };
 
   const { data, isLoading } = useQuery({
     queryKey: ["events", cleanParams],
     queryFn: () => eventsApi.listEvents(cleanParams),
+    placeholderData: keepPreviousData,
   });
 
   function updateFilter(key, value) {
     setFilters((f) => ({ ...f, [key]: value }));
+    pg.reset();
   }
 
   return (
@@ -59,7 +63,7 @@ export default function Events() {
           <option value="processed">Processed</option>
           <option value="failed">Failed</option>
         </select>
-        <Button variant="secondary" onClick={() => setFilters(EMPTY)}>
+        <Button variant="secondary" onClick={() => { setFilters(EMPTY); pg.reset(); }}>
           Clear
         </Button>
       </div>
@@ -69,6 +73,8 @@ export default function Events() {
       ) : (
         <EventTable events={data?.events} onRowClick={(row) => setSelectedEventId(row.event_id)} />
       )}
+
+      <Pagination page={pg.page} perPage={pg.perPage} total={data?.total} onPage={pg.setPage} onPerPage={pg.setPerPage} />
 
       <EventDetailDrawer eventId={selectedEventId} onClose={() => setSelectedEventId(null)} />
     </div>

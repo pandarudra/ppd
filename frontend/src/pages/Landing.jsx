@@ -1,6 +1,8 @@
 import { Link } from "react-router-dom";
+import "@fontsource-variable/shantell-sans"; // hero headline only; the browser fetches it only where it is used
 import { Radio, Network, Cpu, Siren, Bot, ShieldAlert, ArrowRight } from "lucide-react";
 import WorldMap from "../components/charts/WorldMap";
+import Wordmark from "../components/layout/Wordmark";
 import Logo from "../components/layout/Logo";
 import { DEMO_WORLD as DEMO } from "../utils/demoSources";
 import { useAuthStore } from "../stores/authStore";
@@ -30,7 +32,7 @@ export default function Landing() {
       <header className="mx-auto flex h-16 max-w-wide items-center justify-between px-4 md:px-8">
         <Link to="/" className="flex items-center gap-2" aria-label="Sentinel home">
           <Logo size={26} />
-          <span className="text-heading-md">Sentinel</span>
+          <Wordmark className="text-[22px]" />
         </Link>
         <Link to={cta} className="inline-flex h-9 items-center rounded-lg bg-primary px-4 text-button-md text-on-dark hover:bg-primary-press">
           {authed ? "Open console" : "Sign in"}
@@ -42,17 +44,17 @@ export default function Landing() {
           <span className="eyebrow inline-flex items-center gap-2 rounded-full border border-hairline px-3 py-1">
             <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-primary" /> AI-powered security operations
           </span>
-          <h1 className="mt-6 text-[36px] leading-[1.05] md:text-[56px]">
+          <h1 className="mt-6 font-hero text-[36px] font-bold leading-[1.1] md:text-[56px]">
             See every attack. <span className="text-primary">Stop it faster.</span>
           </h1>
           <p className="mx-auto mt-5 max-w-[560px] text-[16px] text-body">
             Sentinel turns raw logs into a live picture of who is attacking, what they hit and what to do next, in one clean console.
           </p>
           <div className="mt-8 flex flex-wrap justify-center gap-3">
-            <Link to={cta} className="inline-flex h-11 items-center gap-2 rounded-lg bg-primary px-6 text-[15px] text-on-dark hover:bg-primary-press">
+            <Link to={cta} className="inline-flex h-11 items-center gap-2 rounded-lg bg-primary px-6 text-[15px] font-extrabold text-on-dark hover:bg-primary-press">
               {authed ? "Open console" : "Sign in"} <ArrowRight size={16} />
             </Link>
-            <a href="#how" className="inline-flex h-11 items-center rounded-lg border border-hairline bg-surface px-6 text-[15px] text-ink hover:border-hairline-strong">
+            <a href="#how" className="inline-flex h-11 items-center rounded-lg border border-hairline bg-surface px-6 text-[15px] font-extrabold text-ink hover:border-hairline-strong">
               How it works
             </a>
           </div>
@@ -109,13 +111,13 @@ export default function Landing() {
         <div className="rounded-card bg-secondary p-8 text-center md:p-14">
           <h2 className="text-display-lg text-on-dark">Watch your own network light up</h2>
           <p className="mx-auto mt-3 max-w-[480px] text-body-md text-on-dark-mute">Sign in and point your syslog at Sentinel. The first alert shows up in seconds.</p>
-          <Link to={cta} className="mt-6 inline-flex h-11 items-center rounded-lg bg-canvas px-6 text-[15px] text-ink">{authed ? "Open console" : "Sign in"}</Link>
+          <Link to={cta} className="mt-6 inline-flex h-11 items-center rounded-lg bg-canvas px-6 text-[15px] font-extrabold text-ink">{authed ? "Open console" : "Sign in"}</Link>
         </div>
       </section>
 
       <footer className="border-t border-hairline">
         <div className="mx-auto flex max-w-wide flex-wrap items-center justify-between gap-2 px-4 py-6 text-caption-sm text-mute md:px-8">
-          <span className="flex items-center gap-2"><Logo size={16} /> Sentinel</span>
+          <span className="flex items-center gap-2"><Logo size={16} /> <Wordmark className="text-body-sm" /></span>
           <span>© 2026 Sentinel. Security operations platform.</span>
         </div>
       </footer>

@@ -1,4 +1,30 @@
 @import "@fontsource-variable/inter/wght.css";
+/* Agrave Pro (Google Fonts, SIL OFL). One weight only, used for the "Sentinel" wordmark. */
+@font-face {
+  font-family: "Agrave Pro";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("./assets/fonts/AgravePro-Regular.ttf") format("truetype");
+}
+
+/* Gilroy (free pack: Light + ExtraBold only). Files live in public/fonts/gilroy-font/ and are not committed;
+   without them the stack falls back to Inter. Request weight 300 for body text, 800 for headings and buttons. */
+@font-face {
+  font-family: "Gilroy";
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: local("Gilroy Light"), local("Gilroy-Light"), url("/fonts/gilroy-font/Gilroy-FREE/Gilroy-Light.otf") format("opentype");
+}
+@font-face {
+  font-family: "Gilroy";
+  font-style: normal;
+  font-weight: 800;
+  font-display: swap;
+  src: local("Gilroy ExtraBold"), local("Gilroy-ExtraBold"), url("/fonts/gilroy-font/Gilroy-FREE/Gilroy-ExtraBold.otf") format("opentype");
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

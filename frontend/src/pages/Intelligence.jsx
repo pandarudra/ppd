@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient, keepPreviousData } from "@tanstack/react-query";
 import { Search } from "lucide-react";
+import Pagination, { usePagination } from "../components/common/Pagination";
 import Card from "../components/common/Card";
 import Button from "../components/common/Button";
 import Spinner from "../components/common/Spinner";
@@ -29,7 +30,12 @@ export default function Intelligence() {
   const [form, setForm] = useState({ ioc_type: "ip", ioc_value: "", threat_type: "", confidence: 50, source: "" });
   const [error, setError] = useState("");
 
-  const { data, isLoading } = useQuery({ queryKey: ["iocs"], queryFn: () => intelApi.listIocs({ per_page: 100 }) });
+  const pg = usePagination();
+  const { data, isLoading } = useQuery({
+    queryKey: ["iocs", pg.page, pg.perPage],
+    queryFn: () => intelApi.listIocs({ page: pg.page, per_page: pg.perPage }),
+    placeholderData: keepPreviousData,
+  });
 
   async function lookup(e) {
     e.preventDefault();
@@ -91,6 +97,7 @@ export default function Intelligence() {
       )}
 
       {isLoading ? <Spinner /> : <DataTable columns={COLUMNS} rows={data?.iocs} emptyMessage="No indicators yet." />}
+      <Pagination page={pg.page} perPage={pg.perPage} total={data?.total} onPage={pg.setPage} onPerPage={pg.setPerPage} />
     </div>
   );
 }

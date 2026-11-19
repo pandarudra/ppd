@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, keepPreviousData } from "@tanstack/react-query";
+import Pagination, { usePagination } from "../components/common/Pagination";
 import DataTable from "../components/common/DataTable";
 import ChipGroup from "../components/common/ChipGroup";
 import { SeverityBadge, StatusBadge } from "../components/common/Badge";
@@ -29,11 +30,13 @@ export default function Alerts() {
   const [status, setStatus] = useState("");
   const [selectedAlertId, setSelectedAlertId] = useState(null);
 
-  const params = Object.fromEntries(Object.entries({ severity, status }).filter(([, v]) => v));
+  const pg = usePagination();
+  const params = { ...Object.fromEntries(Object.entries({ severity, status }).filter(([, v]) => v)), page: pg.page, per_page: pg.perPage };
 
   const { data, isLoading } = useQuery({
     queryKey: ["alerts", params],
     queryFn: () => alertsApi.listAlerts(params),
+    placeholderData: keepPreviousData, // keep the old page on screen while the next loads
   });
 
   return (
@@ -45,14 +48,14 @@ export default function Alerts() {
           label="Severity"
           options={SEVERITIES}
           value={severity}
-          onChange={setSeverity}
+          onChange={(v) => { setSeverity(v); pg.reset(); }}
           format={(s) => s.toLowerCase()}
         />
         <ChipGroup
           label="Status"
           options={ALERT_STATUSES}
           value={status}
-          onChange={setStatus}
+          onChange={(v) => { setStatus(v); pg.reset(); }}
           format={(s) => s.replaceAll("_", " ")}
         />
       </div>
@@ -67,6 +70,7 @@ export default function Alerts() {
           emptyMessage="No alerts match the current filters"
         />
       )}
+      <Pagination page={pg.page} perPage={pg.perPage} total={data?.total} onPage={pg.setPage} onPerPage={pg.setPerPage} />
 
       <AlertDetailDrawer alertId={selectedAlertId} onClose={() => setSelectedAlertId(null)} />
     </div>
