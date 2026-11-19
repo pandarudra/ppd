@@ -11,7 +11,12 @@ import { useHomeStore } from "../../stores/homeStore";
 import { useWsStore } from "../../stores/wsStore";
 
 const initials = (name = "") =>
-  name.split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]).join("") || "?";
+  name
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((w) => w[0])
+    .join("") || "?";
 
 function RefreshButton() {
   const qc = useQueryClient();
@@ -25,7 +30,7 @@ function RefreshButton() {
       className="flex h-9 items-center gap-2 rounded-lg border border-hairline bg-surface px-3 text-body-sm text-charcoal hover:border-hairline-strong disabled:text-mute"
     >
       <RefreshCw size={14} className={fetching ? "animate-spin" : ""} />
-      <span className="hidden sm:inline">{fetching ? "Refreshing" : "Refresh"}</span>
+      {/* <span className="hidden sm:inline">{fetching ? "Refreshing" : "Refresh"}</span> */}
     </button>
   );
 }
@@ -34,7 +39,9 @@ function LiveStatus() {
   const connected = useWsStore((s) => s.connected);
   return (
     <span className="flex items-center gap-2 text-body-sm text-body">
-      <span className={`h-2 w-2 rounded-full ${connected ? "animate-pulse bg-primary" : "bg-mute"}`} />
+      <span
+        className={`h-2 w-2 rounded-full ${connected ? "animate-pulse bg-primary" : "bg-mute"}`}
+      />
       {connected ? "Live" : "Offline"}
     </span>
   );
@@ -59,7 +66,10 @@ export default function PageWrapper({ children }) {
       {/* mobile drawer */}
       {open && (
         <div className="fixed inset-0 z-40 md:hidden">
-          <div className="absolute inset-0 bg-black/60" onClick={() => setOpen(false)} />
+          <div
+            className="absolute inset-0 bg-black/60"
+            onClick={() => setOpen(false)}
+          />
           <aside className="relative h-full w-[88px] border-r border-hairline bg-canvas">
             <Sidebar onNavigate={() => setOpen(false)} />
           </aside>
@@ -81,7 +91,9 @@ export default function PageWrapper({ children }) {
               <Logo size={20} />
               <Wordmark className="text-[18px]" />
             </span>
-            <span className="eyebrow hidden md:inline">Sentinel · Security operations</span>
+            <span className="eyebrow hidden md:inline">
+              Sentinel · Security operations
+            </span>
           </div>
           <div className="flex items-center gap-4">
             <LiveStatus />
@@ -96,7 +108,9 @@ export default function PageWrapper({ children }) {
             </Link>
           </div>
         </header>
-        <main className="mx-auto w-full max-w-wide px-4 py-6 md:px-8 md:py-8">{children}</main>
+        <main className="mx-auto w-full max-w-wide px-4 py-6 md:px-8 md:py-8">
+          {children}
+        </main>
       </div>
     </div>
   );
