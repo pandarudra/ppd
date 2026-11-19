@@ -1,4 +1,5 @@
 import { render, screen } from "@testing-library/react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import Markdown from "./components/common/Markdown";
 
 test("Markdown renders sections, bold and lists without raw HTML", () => {
@@ -16,7 +17,7 @@ test("signed-in user is redirected away from /login and survives a refresh", asy
   );
   window.history.pushState({}, "", "/login");
   const { default: App } = await import("./App");
-  render(<App />);
+  render(<QueryClientProvider client={new QueryClient()}><App /></QueryClientProvider>);
   await screen.findByText(/Sentinel · Security operations/);
   expect(window.location.pathname).toBe("/dashboard");
   expect(screen.queryByText("Sign in to the console")).toBeNull();

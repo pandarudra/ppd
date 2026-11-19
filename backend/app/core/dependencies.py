@@ -1,5 +1,8 @@
+import time
+
 import redis.asyncio as redis
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException, Request, status
+from starlette.concurrency import run_in_threadpool
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError
 from sqlalchemy.orm import Session
@@ -16,7 +19,26 @@ CREDENTIALS_EXCEPTION = HTTPException(
 )
 
 
+# ponytail: per-process user cache, GET requests only (writes always re-read so mutated rows stay
+# attached to the request's session). Deactivation/role changes take up to _USER_TTL seconds to apply;
+# the Redis token blacklist is still checked on every request.
+_USER_TTL = 30
+_user_cache: dict[int, tuple[float, User]] = {}
+
+
+def _load_user(db: Session, user_id: int, cacheable: bool) -> User | None:
+    hit = _user_cache.get(user_id) if cacheable else None
+    if hit and hit[0] > time.monotonic():
+        return hit[1]
+    user = db.query(User).filter(User.id == user_id).first()
+    if user is not None and cacheable:
+        db.expunge(user)
+        _user_cache[user_id] = (time.monotonic() + _USER_TTL, user)
+    return user
+
+
 async def get_current_user(
+    request: Request,
     token: str = Depends(oauth2_scheme),
     db: Session = Depends(get_db),
     redis_client: redis.Redis = Depends(get_redis),
@@ -37,7 +59,7 @@ async def get_current_user(
     if user_id is None:
         raise CREDENTIALS_EXCEPTION
 
-    user = db.query(User).filter(User.id == int(user_id)).first()
+    user = await run_in_threadpool(_load_user, db, int(user_id), request.method == "GET")
     if user is None or not user.is_active:
         raise CREDENTIALS_EXCEPTION
 

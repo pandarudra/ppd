@@ -87,7 +87,7 @@ def _get_or_404(db: Session, alert_id: str) -> Alert:
 
 
 @router.get("", response_model=AlertListResponse)
-async def list_alerts(
+def list_alerts(
     severity: str | None = None,
     status: str | None = None,
     assigned_to: int | None = None,
@@ -97,13 +97,33 @@ async def list_alerts(
     current_user: User = Depends(get_current_user),
 ):
     alerts, total = alert_service.list_alerts(db, severity, status, assigned_to, page, per_page)
-    return AlertListResponse(
-        alerts=[_list_item(db, a) for a in alerts], total=total, page=page, per_page=per_page
-    )
+    # One joined query instead of three lookups per alert (the DB is remote).
+    ids = [a.id for a in alerts]
+    extra = {}
+    if ids:
+        for aid, src, conf, uid, uname in (
+            db.query(Alert.id, SecurityEvent.source_ip, DetectionResult.confidence_score, User.id, User.full_name)
+            .outerjoin(SecurityEvent, SecurityEvent.id == Alert.event_id)
+            .outerjoin(DetectionResult, DetectionResult.id == Alert.detection_result_id)
+            .outerjoin(User, User.id == Alert.assigned_to)
+            .filter(Alert.id.in_(ids))
+            .all()
+        ):
+            extra[aid] = (src, conf, uid, uname)
+
+    def item(a):
+        src, conf, uid, uname = extra.get(a.id, (None, None, None, None))
+        return AlertListItem(
+            id=a.id, alert_id=str(a.alert_id), title=a.title, severity=a.severity, status=a.status,
+            confidence_score=conf, source_ip=src, created_at=a.created_at,
+            assigned_to=AssigneeSummary(id=uid, full_name=uname) if uid else None,
+        )
+
+    return AlertListResponse(alerts=[item(a) for a in alerts], total=total, page=page, per_page=per_page)
 
 
 @router.get("/{alert_id}", response_model=AlertDetail)
-async def get_alert(
+def get_alert(
     alert_id: str, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)
 ):
     alert = _get_or_404(db, alert_id)
@@ -171,7 +191,7 @@ async def assign_alert(
 
 
 @router.post("/{alert_id}/comment", status_code=201)
-async def comment_on_alert(
+def comment_on_alert(
     alert_id: str,
     payload: AlertCommentRequest,
     db: Session = Depends(get_db),
@@ -182,7 +202,7 @@ async def comment_on_alert(
 
 
 @router.post("/correlate", status_code=201, response_model=CorrelateResponse)
-async def correlate_alerts(
+def correlate_alerts(
     payload: CorrelateRequest,
     db: Session = Depends(get_db),
     current_user: User = Depends(require_role("analyst", "admin")),

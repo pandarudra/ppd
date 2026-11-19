@@ -80,7 +80,9 @@ npm run dev
 ### Make the dashboard come alive
 
 ```bash
-python backend/scripts/replay_traffic.py --rate 2        # synthetic benign + attack traffic
+python backend/scripts/replay_traffic.py --rate 2        # steady benign + attack noise
+python backend/scripts/simulate_attacks.py --list         # 17 named attack scenarios + a full kill-chain campaign
+python backend/scripts/simulate_attacks.py phishing campaign
 python backend/scripts/syslog_listener.py --port 5514    # forward real syslog (udp) into /events/ingest
 ```
 

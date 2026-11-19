@@ -4,6 +4,8 @@ import re
 import uuid
 
 from jose import JWTError
+from starlette.background import BackgroundTask
+from starlette.concurrency import run_in_threadpool
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
 from starlette.responses import Response
@@ -83,11 +85,15 @@ class AuditMiddleware(BaseHTTPMiddleware):
         body_bytes = await request.body()
         db = SessionLocal()
         try:
-            resource_type, resource_id, existing_row = _resolve_resource(db, request.url.path)
+            # sync DB work goes through the threadpool: the DB is remote and a blocking
+            # query here would stall every other in-flight request
+            resource_type, resource_id, existing_row = await run_in_threadpool(
+                _resolve_resource, db, request.url.path
+            )
 
             before_state = None
             if request.method in ("PUT", "DELETE") and existing_row is not None:
-                before_state = audit_service.serialize_row(existing_row)
+                before_state = await run_in_threadpool(audit_service.serialize_row, existing_row)
             elif body_bytes:
                 try:
                     before_state = json.loads(body_bytes)
@@ -106,8 +112,7 @@ class AuditMiddleware(BaseHTTPMiddleware):
                 after_state = None
 
             success = response.status_code < 400
-            audit_service.write_log(
-                db,
+            audit_args = (
                 _user_id_from_request(request),
                 f"{request.method} {request.url.path}",
                 resource_type,
@@ -117,8 +122,17 @@ class AuditMiddleware(BaseHTTPMiddleware):
                 before_state,
                 after_state,
                 success,
-                error_message=(after_state.get("detail") if isinstance(after_state, dict) and not success else None),
             )
+            error_message = after_state.get("detail") if isinstance(after_state, dict) and not success else None
+
+            def write_audit():
+                # ponytail: written after the response is sent so the remote DB round trips don't
+                # add ~1 s to every mutation; a crash between response and write can drop that one row.
+                audit_db = SessionLocal()
+                try:
+                    audit_service.write_log(audit_db, *audit_args, error_message=error_message)
+                finally:
+                    audit_db.close()
 
             headers = dict(response.headers)
             headers.pop("content-length", None)
@@ -127,6 +141,7 @@ class AuditMiddleware(BaseHTTPMiddleware):
                 status_code=response.status_code,
                 headers=headers,
                 media_type=response.media_type,
+                background=BackgroundTask(write_audit),
             )
         finally:
             db.close()

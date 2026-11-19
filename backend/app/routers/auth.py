@@ -59,12 +59,12 @@ async def refresh(
 
 
 @router.get("/me", response_model=UserPublic)
-async def me(current_user: User = Depends(get_current_user)):
+def me(current_user: User = Depends(get_current_user)):
     return current_user
 
 
 @router.put("/change-password", response_model=MessageResponse)
-async def change_password(
+def change_password(
     payload: ChangePasswordRequest,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),

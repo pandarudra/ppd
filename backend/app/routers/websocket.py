@@ -44,6 +44,9 @@ async def websocket_endpoint(websocket: WebSocket, token: str | None = Query(def
 
     await ws_manager.connect(websocket, user.id, user.role)
     try:
+        from app.main import collect_health  # imported lazily: app.main imports this router
+
+        await websocket.send_json({"type": "system_health_update", "payload": await collect_health(websocket.app)})  # don't make the client wait up to 30 s
         while True:
             data = await websocket.receive_json()
             if data.get("type") == "ping":

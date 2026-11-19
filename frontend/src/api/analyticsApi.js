@@ -9,3 +9,5 @@ export const getGeo = (hours) => get("/geo", { hours });
 export const getTopSources = (hours) => get("/top-sources", { hours });
 export const getTopTargets = (hours) => get("/top-targets", { hours });
 export const getAttackPaths = (hours) => get("/attack-paths", { hours });
+
+export const getSystemHealth = () => apiClient.get("/api/v1/system/health").then((r) => r.data);

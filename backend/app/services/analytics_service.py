@@ -22,7 +22,22 @@ def _hourly_buckets(db: Session, start: datetime, end: datetime) -> list[dict]:
     return [{"hour": hour.strftime("%H:%M"), "count": count} for hour, count in rows]
 
 
+def _in_own_session(fn, *args):
+    """Run a query function on its own session so several can overlap in threads."""
+    from app.core.database import SessionLocal
+
+    db = SessionLocal()
+    try:
+        return fn(db, *args)
+    finally:
+        db.close()
+
+
 async def get_dashboard(db: Session, redis_client: redis.Redis) -> dict:
+    import asyncio
+
+    from starlette.concurrency import run_in_threadpool
+
     cached = await redis_client.get(DASHBOARD_CACHE_KEY)
     if cached:
         return json.loads(cached)
@@ -31,34 +46,48 @@ async def get_dashboard(db: Session, redis_client: redis.Redis) -> dict:
     day_ago = now - timedelta(hours=24)
     week_ago = now - timedelta(days=7)
 
-    total_events = db.query(SecurityEvent).filter(SecurityEvent.ingested_at >= day_ago).count()
-    total_alerts = db.query(Alert).filter(Alert.created_at >= day_ago).count()
-    open_alerts = db.query(Alert).filter(Alert.status == "open").count()
-    critical_alerts = (
-        db.query(Alert).filter(Alert.severity == "CRITICAL", Alert.status == "open").count()
-    )
-    open_incidents = (
-        db.query(Incident).filter(Incident.status.notin_(["closed", "resolved"])).count()
-    )
+    # The DB is remote (~0.4 s per query), so fan the independent queries out in parallel
+    # instead of running them back to back.
+    def counts(d):
+        total_events = d.query(func.count(SecurityEvent.id)).filter(SecurityEvent.ingested_at >= day_ago).scalar()
+        a = (
+            d.query(
+                func.count(Alert.id).filter(Alert.created_at >= day_ago),
+                func.count(Alert.id).filter(Alert.status == "open"),
+                func.count(Alert.id).filter(Alert.severity == "CRITICAL", Alert.status == "open"),
+            ).one()
+        )
+        return total_events, a
 
-    severity_rows = (
-        db.query(Alert.severity, func.count(Alert.id))
-        .filter(Alert.created_at >= week_ago)
-        .group_by(Alert.severity)
-        .all()
-    )
-    alerts_by_severity = {severity: count for severity, count in severity_rows}
+    def incidents(d):
+        return d.query(func.count(Incident.id)).filter(Incident.status.notin_(["closed", "resolved"])).scalar()
 
-    top_ip_rows = (
-        db.query(SecurityEvent.source_ip, func.count(Alert.id))
-        .join(Alert, Alert.event_id == SecurityEvent.id)
-        .filter(SecurityEvent.source_ip.isnot(None))
-        .group_by(SecurityEvent.source_ip)
-        .order_by(func.count(Alert.id).desc())
-        .limit(5)
-        .all()
+    def severity(d):
+        return dict(
+            d.query(Alert.severity, func.count(Alert.id)).filter(Alert.created_at >= week_ago).group_by(Alert.severity).all()
+        )
+
+    def top_ips(d):
+        rows = (
+            d.query(SecurityEvent.source_ip, func.count(Alert.id))
+            .join(Alert, Alert.event_id == SecurityEvent.id)
+            .filter(SecurityEvent.source_ip.isnot(None))
+            .group_by(SecurityEvent.source_ip)
+            .order_by(func.count(Alert.id).desc())
+            .limit(5)
+            .all()
+        )
+        return [{"ip": ip, "alert_count": count} for ip, count in rows]
+
+    (total_events, (total_alerts, open_alerts, critical_alerts)), open_incidents, alerts_by_severity, top_source_ips, hourly = (
+        await asyncio.gather(
+            run_in_threadpool(_in_own_session, counts),
+            run_in_threadpool(_in_own_session, incidents),
+            run_in_threadpool(_in_own_session, severity),
+            run_in_threadpool(_in_own_session, top_ips),
+            run_in_threadpool(_in_own_session, lambda d: _hourly_buckets(d, day_ago, now)),
+        )
     )
-    top_source_ips = [{"ip": ip, "alert_count": count} for ip, count in top_ip_rows]
 
     result = {
         "period": "last_24h",
@@ -67,7 +96,7 @@ async def get_dashboard(db: Session, redis_client: redis.Redis) -> dict:
         "open_alerts": open_alerts,
         "critical_alerts": critical_alerts,
         "open_incidents": open_incidents,
-        "events_per_hour": _hourly_buckets(db, day_ago, now),
+        "events_per_hour": hourly,
         "alerts_by_severity": alerts_by_severity,
         "top_source_ips": top_source_ips,
         # No analyst-feedback loop exists yet in this MVP slice to compute a
@@ -121,9 +150,10 @@ SEVERITY_RANK = {"INFO": 0, "LOW": 1, "MEDIUM": 2, "HIGH": 3, "CRITICAL": 4}
 # Kill-chain order; first keyword hit wins. Matched against alert title + event_type.
 STAGES = [
     ("recon", ("scan", "probe", "recon", "sweep", "enumerat")),
-    ("brute_force", ("brute", "login_failed", "login failed", "password", "auth")),
-    ("access", ("success", "privilege", "shell", "exploit", "injection", "access")),
-    ("exfiltration", ("exfil", "transfer", "upload", "leak")),
+    ("brute_force", ("brute", "login_failed", "login failed", "stuffing", "password")),
+    ("access", ("success", "privilege", "shell", "exploit", "injection", "phish", "credential_harvest",
+                "c2", "beacon", "lateral", "ransom", "malware", "access")),
+    ("exfiltration", ("exfil", "transfer", "upload", "leak", "tunnel")),
 ]
 STAGE_ORDER = [s for s, _ in STAGES]
 
@@ -151,11 +181,11 @@ def _worst(a: str, b: str) -> str:
     return a if SEVERITY_RANK.get(a, 0) >= SEVERITY_RANK.get(b, 0) else b
 
 
-def get_top_sources(db: Session, hours: int, limit: int = 10) -> list[dict]:
+def get_top_sources(db: Session, hours: int, limit: int = 10, rows=None) -> list[dict]:
     from app.services.geo import locate
 
     agg: dict[str, dict] = {}
-    for src, _dst, _port, _proto, _et, _title, sev, ts in _alert_rows(db, hours):
+    for src, _dst, _port, _proto, _et, _title, sev, ts in (_alert_rows(db, hours) if rows is None else rows):
         a = agg.setdefault(str(src), {"ip": str(src), "alert_count": 0, "severity": "INFO", "last_seen": ts})
         a["alert_count"] += 1
         a["severity"] = _worst(a["severity"], sev)
@@ -166,9 +196,9 @@ def get_top_sources(db: Session, hours: int, limit: int = 10) -> list[dict]:
     return rows
 
 
-def get_top_targets(db: Session, hours: int, limit: int = 10) -> list[dict]:
+def get_top_targets(db: Session, hours: int, limit: int = 10, rows=None) -> list[dict]:
     agg: dict[str, dict] = {}
-    for src, dst, port, _proto, _et, _title, sev, _ts in _alert_rows(db, hours):
+    for src, dst, port, _proto, _et, _title, sev, _ts in (_alert_rows(db, hours) if rows is None else rows):
         if not dst:
             continue
         a = agg.setdefault(str(dst), {"ip": str(dst), "alert_count": 0, "severity": "INFO", "ports": {}, "sources": set()})

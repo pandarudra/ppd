@@ -47,6 +47,9 @@ Status comes from reading the code. Tests and builds were **not** re-run for thi
 
 ## Left
 
+- [x] Attack simulator `backend/scripts/simulate_attacks.py` (phishing, brute force, scans, DDoS, SQLi, C2, exfiltration, ransomware, ...) and hybrid signature rules (`app/services/rules.py`)
+- [x] Performance: threadpool for sync DB calls, N+1 fixes on alerts/events/incidents lists, parallel dashboard queries, pooled + pre-warmed connections
+- [ ] **ML quality**: the live ensemble keys mostly on destination port and flags ~25% of benign internal traffic as MEDIUM. Retrain on real data and evaluate false-positive rate
 - [ ] **Real geolocation**: `backend/app/services/geo.py` hashes public IPs onto a fixed city list. Swap `locate()` for a GeoLite2 lookup
 - [ ] **Real log collection at scale**: only a single-process UDP forwarder exists. Filebeat/Fluent Bit config and TLS syslog are not done
 - [ ] Verify end to end: `pytest backend/tests` (needs a disposable Postgres/Redis, NOT the production URLs in `backend/.env`) and a `docker compose up` smoke test. Only `ml_service` tests, `npm test` and `npm run build` were run for this update

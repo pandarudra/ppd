@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 from app.background.ml_processor import process_event
 from app.core.database import get_db
 from app.core.dependencies import get_current_user, require_role
-from app.models import User
+from app.models import DetectionResult, User
 from app.schemas.event import (
     BatchIngestResponse,
     BatchIngestSchema,
@@ -36,7 +36,7 @@ def _detection_summary(db: Session, event) -> DetectionSummary | None:
 
 
 @router.post("/ingest", status_code=202, response_model=IngestAcceptedResponse)
-async def ingest_event(
+def ingest_event(
     payload: EventIngestSchema,
     background_tasks: BackgroundTasks,
     db: Session = Depends(get_db),
@@ -48,7 +48,7 @@ async def ingest_event(
 
 
 @router.post("/ingest/batch", status_code=202, response_model=BatchIngestResponse)
-async def ingest_batch(
+def ingest_batch(
     payload: BatchIngestSchema,
     background_tasks: BackgroundTasks,
     db: Session = Depends(get_db),
@@ -69,7 +69,7 @@ async def ingest_batch(
 
 
 @router.get("/status/{event_id}", response_model=EventStatusResponse)
-async def event_status(
+def event_status(
     event_id: str, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)
 ):
     event = event_service.get_event_by_uuid(db, event_id)
@@ -84,7 +84,7 @@ async def event_status(
 
 
 @router.get("", response_model=EventListResponse)
-async def list_events(
+def list_events(
     source_ip: str | None = None,
     event_type: str | None = None,
     status: str | None = None,
@@ -98,6 +98,21 @@ async def list_events(
     events, total = event_service.list_events(
         db, source_ip, event_type, status, date_from, date_to, page, per_page
     )
+    # latest detection per event in one query instead of one per row (the DB is remote)
+    latest = {}
+    if events:
+        for d in (
+            db.query(DetectionResult)
+            .filter(DetectionResult.event_id.in_([e.id for e in events]))
+            .order_by(DetectionResult.processed_at.asc())
+            .all()
+        ):
+            latest[d.event_id] = d  # ascending order, so the newest wins
+
+    def summary(e):
+        d = latest.get(e.id)
+        return DetectionSummary(prediction=d.prediction_label, confidence_score=d.confidence_score, risk_level=d.risk_level) if d else None
+
     items = [
         EventListItem(
             id=e.id,
@@ -109,7 +124,7 @@ async def list_events(
             event_type=e.event_type,
             status=e.status,
             ingested_at=e.ingested_at,
-            detection_summary=_detection_summary(db, e),
+            detection_summary=summary(e),
         )
         for e in events
     ]
@@ -117,7 +132,7 @@ async def list_events(
 
 
 @router.get("/{event_id}", response_model=EventDetail)
-async def get_event(
+def get_event(
     event_id: str, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)
 ):
     event = event_service.get_event_by_uuid(db, event_id)
@@ -142,7 +157,7 @@ async def get_event(
 
 
 @router.get("/{event_id}/detection", response_model=DetectionDetailResponse)
-async def get_event_detection(
+def get_event_detection(
     event_id: str, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)
 ):
     event = event_service.get_event_by_uuid(db, event_id)
@@ -167,7 +182,7 @@ async def get_event_detection(
 
 
 @router.delete("/{event_id}")
-async def delete_event(
+def delete_event(
     event_id: str,
     db: Session = Depends(get_db),
     current_user: User = Depends(require_role("admin")),

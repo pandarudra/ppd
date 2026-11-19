@@ -2,18 +2,8 @@ import { Link } from "react-router-dom";
 import { Radio, Network, Cpu, Siren, Bot, ShieldAlert, ArrowRight } from "lucide-react";
 import WorldMap from "../components/charts/WorldMap";
 import Logo from "../components/layout/Logo";
+import { DEMO_WORLD as DEMO } from "../utils/demoSources";
 import { useAuthStore } from "../stores/authStore";
-
-// Illustrative origins for the hero map only; the console shows real data.
-const DEMO = [
-  ["Moscow", "RU", 55.75, 37.62, "CRITICAL"], ["Beijing", "CN", 39.9, 116.4, "HIGH"],
-  ["Sao Paulo", "BR", -23.55, -46.63, "MEDIUM"], ["Lagos", "NG", 6.52, 3.38, "HIGH"],
-  ["Frankfurt", "DE", 50.11, 8.68, "MEDIUM"], ["New York", "US", 40.71, -74.01, "LOW"],
-  ["Tehran", "IR", 35.69, 51.39, "CRITICAL"], ["Singapore", "SG", 1.35, 103.82, "MEDIUM"],
-  ["Sydney", "AU", -33.87, 151.21, "LOW"],
-].map(([city, country, lat, lon, severity], i) => ({
-  ip: `demo-${i}`, alert_count: 3 + i, severity, geo: { city, country, lat, lon },
-}));
 
 const FEATURES = [
   { icon: Radio, title: "Live attack map", body: "Every hostile source plotted against your network in real time, with a history view for the past week." },

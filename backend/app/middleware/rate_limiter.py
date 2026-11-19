@@ -49,9 +49,11 @@ class RateLimiterMiddleware(BaseHTTPMiddleware):
         redis_key = f"ratelimit:{path}:{key_id}:{window_bucket}"
 
         redis_client = request.app.state.redis
-        count = await redis_client.incr(redis_key)
-        if count == 1:
-            await redis_client.expire(redis_key, window)
+        # one round trip instead of two (Redis is remote)
+        async with redis_client.pipeline(transaction=False) as pipe:
+            pipe.incr(redis_key)
+            pipe.expire(redis_key, window)
+            count, _ = await pipe.execute()
 
         if count > limit:
             return JSONResponse(

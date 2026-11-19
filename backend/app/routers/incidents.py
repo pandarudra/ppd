@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
@@ -42,7 +43,7 @@ def _get_or_404(db: Session, incident_id: str) -> Incident:
 
 
 @router.get("", response_model=IncidentListResponse)
-async def list_incidents(
+def list_incidents(
     status: str | None = None,
     severity: str | None = None,
     assigned_to: int | None = None,
@@ -55,8 +56,16 @@ async def list_incidents(
         db, status, severity, assigned_to, page, per_page
     )
     items = []
+    ids = [i.id for i in incidents]
+    assignees = {u.id: u for u in db.query(User).filter(User.id.in_([i.assigned_to for i in incidents if i.assigned_to])).all()} if incidents else {}
+    counts = dict(
+        db.query(IncidentAlert.incident_id, func.count(IncidentAlert.id))
+        .filter(IncidentAlert.incident_id.in_(ids))
+        .group_by(IncidentAlert.incident_id)
+        .all()
+    ) if ids else {}
     for incident in incidents:
-        assignee = db.query(User).filter(User.id == incident.assigned_to).first()
+        assignee = assignees.get(incident.assigned_to)
         items.append(
             {
                 "id": incident.id,
@@ -65,7 +74,7 @@ async def list_incidents(
                 "status": incident.status,
                 "severity": incident.severity,
                 "assigned_to": assignee.full_name if assignee else None,
-                "alert_count": _alert_count(db, incident.id),
+                "alert_count": counts.get(incident.id, 0),
                 "created_at": incident.created_at,
             }
         )
@@ -103,7 +112,7 @@ async def create_incident(
 
 
 @router.get("/{incident_id}", response_model=IncidentDetail)
-async def get_incident(
+def get_incident(
     incident_id: str, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)
 ):
     incident = _get_or_404(db, incident_id)
@@ -165,7 +174,7 @@ async def update_incident(
 
 
 @router.post("/{incident_id}/alerts")
-async def link_incident_alerts(
+def link_incident_alerts(
     incident_id: str,
     payload: LinkAlertsRequest,
     db: Session = Depends(get_db),
@@ -181,7 +190,7 @@ async def link_incident_alerts(
 
 
 @router.get("/{incident_id}/timeline", response_model=TimelineResponse)
-async def get_incident_timeline(
+def get_incident_timeline(
     incident_id: str, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)
 ):
     incident = _get_or_404(db, incident_id)
@@ -203,7 +212,7 @@ async def get_incident_timeline(
 
 
 @router.post("/{incident_id}/response-actions", status_code=201)
-async def request_response_action(
+def request_response_action(
     incident_id: str,
     payload: ResponseActionCreate,
     db: Session = Depends(get_db),
@@ -222,7 +231,7 @@ async def request_response_action(
 
 
 @router.put("/{incident_id}/response-actions/{action_id}")
-async def decide_response_action(
+def decide_response_action(
     incident_id: str,
     action_id: str,
     payload: ResponseActionDecision,

@@ -50,12 +50,15 @@ export default function Dashboard() {
   const alerts = useAlertStore((s) => s.alerts);
   const setAlerts = useAlertStore((s) => s.setAlerts);
   const streamed = useEventStore((s) => s.events);
-  const health = useWsStore((s) => s.health);
+  const wsHealth = useWsStore((s) => s.health);
+  // HTTP gives the first value immediately (and on Refresh); WebSocket pushes keep it current after that.
+  const { data: polledHealth } = useQuery({ queryKey: ["health"], queryFn: analyticsApi.getSystemHealth, refetchInterval: 30000 });
+  const health = wsHealth ?? polledHealth;
 
+  const { data: feed } = useQuery({ queryKey: ["alerts-feed"], queryFn: () => alertsApi.listAlerts({ per_page: 20 }) });
   useEffect(() => {
-    if (alerts.length === 0) alertsApi.listAlerts({ per_page: 20 }).then((r) => setAlerts(r.alerts)).catch(() => {});
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    if (feed?.alerts) setAlerts(feed.alerts); // WebSocket events keep it current between refreshes
+  }, [feed, setAlerts]);
 
   // In live mode, fold hostile events arriving over the WebSocket into the map immediately.
   const sources = useMemo(() => {

@@ -11,7 +11,7 @@ router = APIRouter(prefix="/api/v1/intelligence", tags=["intelligence"])
 
 
 @router.get("/lookup", response_model=IOCLookupResponse)
-async def lookup_ioc(
+def lookup_ioc(
     ioc: str,
     type: str,
     db: Session = Depends(get_db),
@@ -33,7 +33,7 @@ async def lookup_ioc(
 
 
 @router.get("/iocs", response_model=IOCListResponse)
-async def list_iocs(
+def list_iocs(
     type: str | None = None,
     is_active: bool | None = None,
     confidence_min: int | None = None,
@@ -64,7 +64,7 @@ async def list_iocs(
 
 
 @router.post("/iocs", status_code=201)
-async def add_ioc(
+def add_ioc(
     payload: IOCCreate,
     db: Session = Depends(get_db),
     current_user: User = Depends(require_role("analyst", "admin")),

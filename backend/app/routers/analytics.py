@@ -23,7 +23,7 @@ async def dashboard(
 
 
 @router.get("/trends")
-async def trends(
+def trends(
     period: str = "7d",
     metric: str = "alert_volume",
     db: Session = Depends(get_db),
@@ -44,20 +44,20 @@ async def models(current_user: User = Depends(get_current_user)):
 
 
 @router.get("/top-sources")
-async def top_sources(hours: int = 24, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+def top_sources(hours: int = 24, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     return {"sources": analytics_service.get_top_sources(db, hours)}
 
 
 @router.get("/top-targets")
-async def top_targets(hours: int = 24, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+def top_targets(hours: int = 24, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     return {"targets": analytics_service.get_top_targets(db, hours)}
 
 
 @router.get("/attack-paths")
-async def attack_paths(hours: int = 24, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+def attack_paths(hours: int = 24, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     return analytics_service.get_attack_paths(db, hours)
 
 
 @router.get("/geo")
-async def geo(hours: int = 24, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+def geo(hours: int = 24, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     return analytics_service.get_geo(db, hours)

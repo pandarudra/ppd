@@ -1,14 +1,33 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { Menu, X } from "lucide-react";
+import { Menu, RefreshCw, X } from "lucide-react";
+import { useIsFetching, useQueryClient } from "@tanstack/react-query";
 import Sidebar from "./Sidebar";
 import Logo from "./Logo";
 import { useWebSocket } from "../../hooks/useWebSocket";
 import { useAuthStore } from "../../stores/authStore";
+import { useHomeStore } from "../../stores/homeStore";
 import { useWsStore } from "../../stores/wsStore";
 
 const initials = (name = "") =>
   name.split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]).join("") || "?";
+
+function RefreshButton() {
+  const qc = useQueryClient();
+  const fetching = useIsFetching() > 0;
+  return (
+    <button
+      onClick={() => qc.invalidateQueries()} // refetches every active query on the current page
+      disabled={fetching}
+      aria-label="Refresh data"
+      title="Refresh data"
+      className="flex h-9 items-center gap-2 rounded-lg border border-hairline bg-surface px-3 text-body-sm text-charcoal hover:border-hairline-strong disabled:text-mute"
+    >
+      <RefreshCw size={14} className={fetching ? "animate-spin" : ""} />
+      <span className="hidden sm:inline">{fetching ? "Refreshing" : "Refresh"}</span>
+    </button>
+  );
+}
 
 function LiveStatus() {
   const connected = useWsStore((s) => s.connected);
@@ -22,6 +41,10 @@ function LiveStatus() {
 
 export default function PageWrapper({ children }) {
   useWebSocket();
+  useEffect(() => {
+    const { attempted, detect } = useHomeStore.getState();
+    if (!attempted) detect(); // once per browser; asks for location permission
+  }, []);
   const [open, setOpen] = useState(false);
   const user = useAuthStore((s) => s.user);
 
@@ -61,6 +84,7 @@ export default function PageWrapper({ children }) {
           </div>
           <div className="flex items-center gap-4">
             <LiveStatus />
+            <RefreshButton />
             <Link
               to="/profile"
               aria-label={`Profile: ${user?.full_name || "account"}`}

@@ -40,3 +40,17 @@ test("Landing renders the hero", () => {
   render(<MemoryRouter><Landing /></MemoryRouter>);
   expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("See every attack");
 });
+
+test("WorldMap zoom controls and click-for-details", async () => {
+  const { fireEvent } = await import("@testing-library/react");
+  const src = { ip: "9.9.9.9", alert_count: 2, severity: "HIGH", geo: { city: "Paris", country: "FR", lat: 48.86, lon: 2.35 } };
+  const { container } = render(<WorldMap sources={[src]} />);
+  const svg = container.querySelector("svg");
+  const before = svg.getAttribute("viewBox");
+  fireEvent.click(screen.getByLabelText("Zoom in"));
+  expect(svg.getAttribute("viewBox")).not.toBe(before);
+  fireEvent.click(screen.getByLabelText("Reset view"));
+  expect(svg.getAttribute("viewBox")).toBe(before);
+  fireEvent.click(container.querySelector("circle.cursor-pointer"));
+  expect(screen.getByRole("dialog", { name: "Map details" })).toHaveTextContent("Paris, FR");
+});

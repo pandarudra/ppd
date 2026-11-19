@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Eye, EyeOff } from "lucide-react";
 import Button from "../components/common/Button";
 import WorldMap from "../components/charts/WorldMap";
+import { DEMO_EURASIA } from "../utils/demoSources";
 import Logo from "../components/layout/Logo";
 import { useAuth } from "../hooks/useAuth";
 
@@ -63,9 +64,13 @@ export default function Login() {
           <Button type="submit" className="h-10 w-full" disabled={loading}>{loading ? "Signing in…" : "Sign in"}</Button>
         </form>
       </div>
-      <div className="relative hidden items-center overflow-hidden border-l border-hairline bg-panel lg:flex" aria-hidden>
-        <div className="absolute inset-0 bg-[radial-gradient(70%_60%_at_50%_30%,rgba(0,117,255,0.14),transparent)]" />
-        <WorldMap sources={[]} className="relative opacity-80" />
+      <div className="relative hidden overflow-hidden border-l border-hairline bg-panel lg:block" aria-hidden>
+        <WorldMap fill sources={DEMO_EURASIA} className="absolute inset-0" />
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(70%_60%_at_50%_30%,rgba(0,117,255,0.14),transparent)]" />
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-panel to-transparent" />
+        <p className="absolute bottom-8 left-8 right-8 text-body-md text-body">
+          <span className="text-heading-sm text-ink">Every attack, on one map.</span><br />Illustrative traffic shown.
+        </p>
       </div>
     </div>
   );
