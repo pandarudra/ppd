@@ -4,6 +4,7 @@ from pathlib import Path
 import joblib
 
 from ensemble.ensemble import combine
+from pipeline.feature_extractor import FEATURE_ORDER
 from pipeline.preprocessor import to_vector
 
 MODEL_DIR = Path(__file__).resolve().parent / "models"
@@ -23,6 +24,13 @@ class ModelRegistry:
         metrics_path = MODEL_DIR / "metrics.json"
         if metrics_path.exists():
             cls._metrics = json.loads(metrics_path.read_text())
+        # Models trained before curves were saved still get feature importance from the artifact itself.
+        for key, name in (("random_forest", "random_forest"), ("xgboost", "xgboost")):
+            m = cls._metrics.get(name)
+            if m is not None and "feature_importance" not in m:
+                m["feature_importance"] = {
+                    n: round(float(v), 5) for n, v in zip(FEATURE_ORDER, cls._models[key].feature_importances_)
+                }
 
     @classmethod
     def is_loaded(cls) -> bool:

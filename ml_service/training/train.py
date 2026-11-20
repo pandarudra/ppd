@@ -15,18 +15,50 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 import joblib
 import xgboost as xgb
 from sklearn.ensemble import IsolationForest, RandomForestClassifier
+import numpy as np
 from sklearn.metrics import (
     accuracy_score,
+    confusion_matrix,
     f1_score,
+    precision_recall_curve,
     precision_score,
     recall_score,
     roc_auc_score,
+    roc_curve,
 )
 from sklearn.utils.class_weight import compute_sample_weight
 
 from training.data_prep import DATA_PATH, load_and_split
 
 MODEL_DIR = Path(__file__).resolve().parents[1] / "models"
+
+
+def _thin(*arrays, n=100):
+    # ponytail: even-stride downsample keeps metrics.json small; endpoints kept.
+    idx = np.unique(np.linspace(0, len(arrays[0]) - 1, min(n, len(arrays[0]))).astype(int))
+    return [[round(float(a[i]), 4) for i in idx] for a in arrays]
+
+
+def curves(y_true, y_pred, y_score) -> dict:
+    """Plot-ready payload for the UI: confusion matrix, ROC, PR and F1-vs-threshold."""
+    lo, hi = float(np.min(y_score)), float(np.max(y_score))
+    ths = np.linspace(lo, hi, 101)
+    f1s = [f1_score(y_true, (y_score >= t).astype(int), zero_division=0) for t in ths]
+    fpr, tpr, _ = roc_curve(y_true, y_score)
+    prec, rec, _ = precision_recall_curve(y_true, y_score)
+    # threshold axis is min-max normalised so IsolationForest's unbounded scores plot like the others
+    norm = (ths - lo) / (hi - lo or 1.0)
+    tn, fp, fn, tp = confusion_matrix(y_true, y_pred, labels=[0, 1]).ravel()
+    return {
+        "confusion_matrix": {"tn": int(tn), "fp": int(fp), "fn": int(fn), "tp": int(tp)},
+        "roc": dict(zip(("fpr", "tpr"), _thin(fpr, tpr))),
+        "pr": dict(zip(("recall", "precision"), _thin(rec, prec))),
+        "f1_threshold": dict(zip(("threshold", "f1"), _thin(norm, f1s))),
+    }
+
+
+def importances(model, names) -> dict:
+    return {n: round(float(v), 5) for n, v in zip(names, model.feature_importances_)}
 
 
 def evaluate(name: str, y_true, y_pred, y_score) -> dict:
@@ -71,6 +103,15 @@ def main():
     xgb_pred = xgb_model.predict(X_test)
     xgb_score = xgb_model.predict_proba(X_test)[:, 1]
     xgb_metrics = evaluate("xgboost", y_test, xgb_pred, xgb_score)
+
+    for m, model, y_pred, y_score in (
+        (if_metrics, None, if_pred, if_score),
+        (rf_metrics, random_forest, rf_pred, rf_score),
+        (xgb_metrics, xgb_model, xgb_pred, xgb_score),
+    ):
+        m.update(curves(y_test, y_pred, y_score))
+        if model is not None:
+            m["feature_importance"] = importances(model, data["feature_names"])
 
     MODEL_DIR.mkdir(parents=True, exist_ok=True)
     joblib.dump(isolation_forest, MODEL_DIR / "isolation_forest.joblib", compress=3)

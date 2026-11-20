@@ -3,6 +3,7 @@ import Card from "../components/common/Card";
 import Spinner from "../components/common/Spinner";
 import DataTable from "../components/common/DataTable";
 import ModelMetricsBar from "../components/charts/ModelMetricsBar";
+import ModelCurves from "../components/charts/ModelCurves";
 import PageHeader from "../components/layout/PageHeader";
 import * as analyticsApi from "../api/analyticsApi";
 import { formatPercent } from "../utils/formatters";
@@ -30,6 +31,7 @@ export default function ModelPerformance() {
       {isLoading ? <Spinner /> : (
         <>
           <Card><ModelMetricsBar models={models} /></Card>
+          <ModelCurves models={models} />
           <DataTable columns={COLUMNS} rows={rows} emptyMessage="No model metrics available. Is the ML service running and trained?" />
         </>
       )}
