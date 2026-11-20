@@ -1,0 +1,563 @@
+{
+  "title": "Sentinel | Enterprise SOC Platform Walkthrough",
+  "output": {
+    "width": 1920,
+    "height": 1080,
+    "fps": 30,
+    "codec": "h264",
+    "targetSeconds": [
+      300,
+      420
+    ]
+  },
+  "levels": {
+    "info": "#4da3ff",
+    "ok": "#00b24b",
+    "warn": "#f5c542",
+    "crit": "#ff4d4f"
+  },
+  "phases": {
+    "none": "No hosted operation (public landing page, composed titles, offline editing).",
+    "A": "Phase A: ONE analyst login, then authenticated read-only pages. Needs separate approval and R1 confirmation.",
+    "B": "Phase B: bounded simulator traffic and exactly one incident. Needs separate approval.",
+    "C": "Phase C: exactly one Gemini request behind a browser-level guard. Needs separate approval."
+  },
+  "scenes": [
+    {
+      "id": "01-opening",
+      "kind": "composed",
+      "phase": "none",
+      "seconds": [
+        15,
+        20
+      ],
+      "title": "Opening and product identity",
+      "source": "Hyperframes title sequence (no app footage, no fabricated UI)",
+      "captions": [
+        {
+          "key": "open",
+          "label": "OPENING",
+          "status": "SYSTEM ONLINE",
+          "level": "info",
+          "lines": [
+            "Unified threat intelligence.",
+            "One operational security view."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "02-landing",
+      "kind": "recorded",
+      "phase": "none",
+      "seconds": [
+        20,
+        25
+      ],
+      "title": "Platform landing page",
+      "route": "/",
+      "notes": "The animated map on the landing and login pages uses the frontend's bundled DEMO data (utils/demoSources.js), not real attackers: captions must not imply otherwise.",
+      "captions": [
+        {
+          "key": "hero",
+          "label": "PLATFORM",
+          "status": "OVERVIEW",
+          "level": "info",
+          "lines": [
+            "From raw logs to a live security picture.",
+            "Illustrative map: demonstration data."
+          ]
+        },
+        {
+          "key": "capabilities",
+          "label": "PLATFORM",
+          "status": "CAPABILITIES",
+          "level": "info",
+          "lines": [
+            "Detect, correlate, investigate, respond.",
+            "One console for the analyst workflow."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "03-auth",
+      "kind": "recorded",
+      "phase": "A",
+      "seconds": [
+        15,
+        20
+      ],
+      "title": "Authentication (the ONE login)",
+      "route": "/login",
+      "notes": "The single analyst login. Saves the browser session to .auth/state.json for every later scene. Password is a masked field and is never revealed; no --auth-setup, no second login.",
+      "captions": [
+        {
+          "key": "signin",
+          "label": "ACCESS",
+          "status": "AUTHENTICATING",
+          "level": "info",
+          "lines": [
+            "Signing in as a SOC analyst.",
+            "Role-based access to the console."
+          ]
+        },
+        {
+          "key": "signedin",
+          "label": "ACCESS",
+          "status": "SESSION ACTIVE",
+          "level": "ok",
+          "lines": [
+            "Signed in.",
+            "Opening the operations overview."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "04-dashboard",
+      "kind": "recorded",
+      "phase": "A",
+      "seconds": [
+        35,
+        45
+      ],
+      "title": "SOC dashboard",
+      "route": "/dashboard",
+      "notes": "Map geolocation is a deterministic placeholder (24 cities): never describe attacker locations as accurate. 'Alerts by severity' and 'Alert volume' live here, not on /analytics.",
+      "captions": [
+        {
+          "key": "posture",
+          "label": "DASHBOARD",
+          "status": "MONITORING",
+          "level": "info",
+          "lines": [
+            "Monitoring the current security posture.",
+            "Tracking alerts, activity and emerging threats."
+          ]
+        },
+        {
+          "key": "map",
+          "label": "DASHBOARD",
+          "status": "THREAT MAP",
+          "level": "info",
+          "lines": [
+            "Attack origins on the threat map.",
+            "Locations are illustrative placeholders."
+          ]
+        },
+        {
+          "key": "history",
+          "label": "DASHBOARD",
+          "status": "TIME RANGE",
+          "level": "info",
+          "lines": [
+            "Switching to history mode.",
+            "Reviewing a selectable time window."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "05a-events",
+      "kind": "recorded",
+      "phase": "A",
+      "seconds": [
+        18,
+        24
+      ],
+      "title": "Security events table",
+      "route": "/events",
+      "notes": "Filters and drawer are GET-only. NEVER press 'Explain & next steps' (Gemini).",
+      "captions": [
+        {
+          "key": "table",
+          "label": "EVENTS",
+          "status": "TELEMETRY",
+          "level": "info",
+          "lines": [
+            "Inspecting recorded security events.",
+            "Each row carries its detection result."
+          ]
+        },
+        {
+          "key": "detail",
+          "label": "EVENTS",
+          "status": "EVENT DETAIL",
+          "level": "info",
+          "lines": [
+            "Opening a single event.",
+            "Raw log, normalised fields and model scores."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "05b-live",
+      "kind": "recorded",
+      "phase": "A",
+      "seconds": [
+        10,
+        16
+      ],
+      "title": "Live event stream",
+      "route": "/live",
+      "notes": "The page shows only WebSocket events received while open. Without authorised simulator traffic it is empty; the 'live' caption is emitted ONLY if rows actually appear, otherwise a neutral standby caption.",
+      "captions": [
+        {
+          "key": "live",
+          "label": "EVENTS",
+          "status": "LIVE TELEMETRY",
+          "level": "ok",
+          "lines": [
+            "Following events as they arrive.",
+            "Activity across the monitored environment."
+          ]
+        },
+        {
+          "key": "standby",
+          "label": "EVENTS",
+          "status": "STANDBY",
+          "level": "info",
+          "lines": [
+            "The live stream is ready.",
+            "Waiting for new events."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "06-alerts",
+      "kind": "recorded",
+      "phase": "A",
+      "seconds": [
+        40,
+        45
+      ],
+      "title": "Alert investigation",
+      "route": "/alerts",
+      "notes": "Rows are table rows (click the row, never a chip). Filters are read-only. NEVER use Status, Assign, Comment, Open incident or 'Explain with AI' here.",
+      "captions": [
+        {
+          "key": "queue",
+          "label": "ALERTS",
+          "status": "INVESTIGATING",
+          "level": "warn",
+          "lines": [
+            "Reviewing suspicious activity.",
+            "Filtering by severity and status."
+          ]
+        },
+        {
+          "key": "detail",
+          "label": "ALERTS",
+          "status": "ALERT DETAIL",
+          "level": "warn",
+          "lines": [
+            "Examining severity, context and evidence.",
+            "Read-only review: no changes made."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "07-incident",
+      "kind": "recorded",
+      "phase": "B",
+      "seconds": [
+        35,
+        45
+      ],
+      "title": "Incident management",
+      "route": "/incidents",
+      "notes": "Creates EXACTLY ONE incident from one approved alert, records its UUID, then makes ONE status change on that UUID. No response-action or approval screens exist in the UI and none are shown.",
+      "captions": [
+        {
+          "key": "open",
+          "label": "INCIDENT",
+          "status": "INCIDENT RESPONSE",
+          "level": "crit",
+          "lines": [
+            "Opening a dedicated incident record.",
+            "Linking it to the investigated alert."
+          ]
+        },
+        {
+          "key": "timeline",
+          "label": "INCIDENT",
+          "status": "TIMELINE",
+          "level": "crit",
+          "lines": [
+            "Following the investigation timeline.",
+            "Every action is recorded."
+          ]
+        },
+        {
+          "key": "status",
+          "label": "INCIDENT",
+          "status": "STATUS UPDATED",
+          "level": "ok",
+          "lines": [
+            "Status moved to investigating.",
+            "Change confirmed on the incident."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "08-attack-paths",
+      "kind": "recorded",
+      "phase": "A",
+      "seconds": [
+        25,
+        35
+      ],
+      "title": "Attack path and kill chain",
+      "route": "/attack-paths",
+      "notes": "Uses existing data in the selected window. Richer after Phase B traffic, but Phase A is enough to record it.",
+      "captions": [
+        {
+          "key": "flow",
+          "label": "ATTACK PATH",
+          "status": "THREAT ANALYSIS",
+          "level": "warn",
+          "lines": [
+            "Connecting observed activity.",
+            "Understanding the progression of an attack."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "09-intel",
+      "kind": "recorded",
+      "phase": "A",
+      "seconds": [
+        25,
+        35
+      ],
+      "title": "Threat intelligence",
+      "route": "/intelligence",
+      "notes": "Lookup is a GET. NEVER use the 'Add indicator' form. The indicator looked up is read from the first row of the existing list, not invented.",
+      "captions": [
+        {
+          "key": "list",
+          "label": "THREAT INTELLIGENCE",
+          "status": "INTELLIGENCE",
+          "level": "info",
+          "lines": [
+            "Examining known threat indicators.",
+            "Adding context to observed activity."
+          ]
+        },
+        {
+          "key": "lookup",
+          "label": "THREAT INTELLIGENCE",
+          "status": "LOOKUP",
+          "level": "info",
+          "lines": [
+            "Checking an indicator against the feed.",
+            "Read-only lookup."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "10-analytics",
+      "kind": "recorded",
+      "phase": "A",
+      "seconds": [
+        25,
+        30
+      ],
+      "title": "Analytics",
+      "route": "/analytics",
+      "notes": "/analytics shows alert and event volume trends only. Severity breakdown is on the dashboard.",
+      "captions": [
+        {
+          "key": "trends",
+          "label": "ANALYTICS",
+          "status": "ANALYTICS",
+          "level": "info",
+          "lines": [
+            "Examining trends over time.",
+            "Turning security telemetry into insight."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "11-models",
+      "kind": "recorded",
+      "phase": "A",
+      "seconds": [
+        35,
+        45
+      ],
+      "title": "ML models",
+      "route": "/models",
+      "notes": "No accuracy claims beyond what the page displays (UNSW-NB15 held-out split). The PNG download is a client-side file; it modifies no application data.",
+      "captions": [
+        {
+          "key": "metrics",
+          "label": "ML MODELS",
+          "status": "MODEL EVALUATION",
+          "level": "info",
+          "lines": [
+            "Inspecting detection model performance.",
+            "Reviewing classification and evaluation metrics."
+          ]
+        },
+        {
+          "key": "compare",
+          "label": "ML MODELS",
+          "status": "COMPARISON",
+          "level": "info",
+          "lines": [
+            "Comparing the three models.",
+            "ROC, precision-recall, F1 and importance."
+          ]
+        },
+        {
+          "key": "export",
+          "label": "ML MODELS",
+          "status": "EXPORT",
+          "level": "ok",
+          "lines": [
+            "Exporting the evaluation figure.",
+            "A publication-style PNG."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "12-assistant",
+      "kind": "recorded",
+      "phase": "A",
+      "seconds": [
+        8,
+        12
+      ],
+      "title": "Assistant (view only)",
+      "route": "/assistant",
+      "notes": "View only. NEVER click a suggestion chip (each sends a Gemini request immediately).",
+      "captions": [
+        {
+          "key": "view",
+          "label": "ASSISTANT",
+          "status": "AI ASSISTANCE",
+          "level": "info",
+          "lines": [
+            "Exploring contextual security assistance.",
+            "Questions answered from platform data."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "12b-assistant-ask",
+      "kind": "recorded",
+      "phase": "C",
+      "seconds": [
+        12,
+        18
+      ],
+      "title": "Assistant (one approved request)",
+      "route": "/assistant",
+      "notes": "Exactly one POST /assistant/analyze, enforced by the browser guard. Skip the scene if the answer is the [OFFLINE MODE] fallback. Never use suggestion chips.",
+      "captions": [
+        {
+          "key": "ask",
+          "label": "ASSISTANT",
+          "status": "AI ASSISTANCE",
+          "level": "info",
+          "lines": [
+            "Asking for a summary of recent alerts.",
+            "Supporting investigation with AI."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "13a-users",
+      "kind": "recorded",
+      "phase": "A",
+      "seconds": [
+        10,
+        14
+      ],
+      "title": "User administration (admin, view only)",
+      "route": "/users",
+      "notes": "Admin account only. View only: NEVER use the New user form, the role selects or Deactivate. Name and email cells are blurred in the composition.",
+      "captions": [
+        {
+          "key": "users",
+          "label": "ADMINISTRATION",
+          "status": "ACCESS CONTROL",
+          "level": "info",
+          "lines": [
+            "Reviewing accounts and roles.",
+            "Administration is limited to the admin role."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "13-profile-settings",
+      "kind": "recorded",
+      "phase": "A",
+      "seconds": [
+        20,
+        25
+      ],
+      "title": "Profile and settings",
+      "route": "/profile",
+      "notes": "Recorded as the admin account against the LOCAL stack. Profile/Settings show the account email and API URL: those rows are blurred in the composition. NEVER press Sign out, Update password or 'Detect again' (IP lookup).",
+      "captions": [
+        {
+          "key": "profile",
+          "label": "ACCOUNT",
+          "status": "PROFILE",
+          "level": "info",
+          "lines": [
+            "Account and role information.",
+            "Identifiers are masked in this film."
+          ]
+        },
+        {
+          "key": "settings",
+          "label": "ACCOUNT",
+          "status": "SETTINGS",
+          "level": "info",
+          "lines": [
+            "Current configuration, read only.",
+            "Live updates and loaded detection models."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "14-closing",
+      "kind": "composed",
+      "phase": "none",
+      "seconds": [
+        15,
+        20
+      ],
+      "title": "Closing",
+      "source": "Last frames of the 04-dashboard recording under a Hyperframes title",
+      "captions": [
+        {
+          "key": "close",
+          "label": "SENTINEL",
+          "status": "SENTINEL",
+          "level": "info",
+          "lines": [
+            "Intelligent threat detection.",
+            "Unified security operations."
+          ]
+        }
+      ]
+    }
+  ]
+}

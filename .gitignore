@@ -28,3 +28,9 @@ ml_service/data/
 
 # Gilroy free pack: EULA forbids making the font available to third parties
 frontend/public/fonts/gilroy-font/
+
+# video tooling outputs (recorder + browser binary)
+recordings/
+shots/
+chrome-headless-shell/
+.auth/

@@ -77,6 +77,8 @@ npm run dev
 
 `scripts/run_backend.sh [--seed]`, `scripts/run_ml.sh [--train unsw <csvs>]`, `scripts/run_frontend.sh`, and `scripts/run_simulation.sh [scenario...] [--loop]` to replay simulated attacks.
 
+On Windows use the PowerShell equivalents: `.\scripts\run_backend.ps1 [--seed]`, `.\scripts\run_ml.ps1 [--train unsw <csvs>]`, `.\scripts\run_frontend.ps1`. If scripts are blocked, run `powershell -ExecutionPolicy Bypass -File .\scripts\run_backend.ps1 --seed` (or `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned` once). Start Postgres and Redis first (`docker compose up -d postgres redis`).
+
 ### Make the dashboard come alive
 
 ```bash
