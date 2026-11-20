@@ -35,6 +35,9 @@ function frame(c, { x, y, w, h }, { title, xLabel, yLabel, xTicks = [0, 0.2, 0.4
 }
 
 export const PALETTE = ["#1f77b4", "#ff7f0e", "#2ca02c"];
+// Same model, same colour in every figure (even when a subset is exported).
+const ORDER = ["isolation_forest", "random_forest", "xgboost"];
+const colorOf = (name, i) => PALETTE[(ORDER.includes(name) ? ORDER.indexOf(name) : i) % PALETTE.length];
 
 function legend(c, { R, B }, series) {
   c.font = `11px ${FONT}`;
@@ -77,7 +80,7 @@ function confusion(c, box, items, title) {
   const { x, y, w, h } = box;
   const n = items.length, multi = n > 1;
   txt(c, title, x + w / 2, y + 20, { size: 14 });
-  const gap = 16, left = x + 56, right = x + w - 14;
+  const gap = 16, left = x + (multi ? 88 : 56), right = x + w - 14;
   const mw = (right - left - gap * (n - 1)) / n, T = y + (multi ? 62 : 34), B = y + h - 48;
   const mh = multi ? Math.min(mw, B - T) : B - T, top = multi ? T + (B - T - mh) / 2 : T;
   items.forEach(({ cm, label }, k) => {
@@ -154,7 +157,7 @@ export function downloadEvaluationFigure(models) {
   const [cv, c] = canvas(1000, 860);
   const box = (i) => ({ x: (i % 2) * 500, y: Math.floor(i / 2) * 430, w: 500, h: 430 });
   const mk = (xk, yk, labelOf = pretty) =>
-    names.map((n, i) => ({ xs: models[n][xk.k][xk.f], ys: models[n][xk.k][yk], label: labelOf(n, models[n]), color: PALETTE[i % PALETTE.length] }));
+    names.map((n, i) => ({ xs: models[n][xk.k][xk.f], ys: models[n][xk.k][yk], label: labelOf(n, models[n]), color: colorOf(n, i) }));
   const tag = multi ? "" : `${pretty(names[0])} `;
   line(c, frame(c, box(0), { title: `(a) ${tag}Precision–Recall Curve`, xLabel: "Recall", yLabel: "Precision" }), mk({ k: "pr", f: "recall" }, "precision"));
   line(c, frame(c, box(1), { title: `(b) ${tag}F1 vs Decision Threshold`, xLabel: "Threshold (normalised)", yLabel: "F1 score" }), mk({ k: "f1_threshold", f: "threshold" }, "f1"));
@@ -170,7 +173,7 @@ export function downloadImportanceFigure(models) {
   const names = Object.keys(models).filter((n) => models[n].feature_importance), multi = names.length > 1;
   const [cv, c] = canvas(1000, 600);
   importance(c, { x: 0, y: 0, w: 1000, h: 600 },
-    names.map((n, i) => ({ fi: models[n].feature_importance, label: pretty(n), color: PALETTE[Object.keys(models).indexOf(n) % PALETTE.length] })),
+    names.map((n, i) => ({ fi: models[n].feature_importance, label: pretty(n), color: colorOf(n, i) })),
     multi ? "Feature Importance Comparison" : `${pretty(names[0])} Feature Importance`);
   save(cv, multi ? "model_comparison_feature_importance.png" : `${slug(names[0])}_feature_importance.png`);
 }
